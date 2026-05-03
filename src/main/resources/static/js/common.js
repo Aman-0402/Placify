@@ -16,6 +16,30 @@ export function initializeLayout(activePage, user) {
     ensurePageLoader();
 }
 
+const NAV_ICONS = {
+    dashboard: `<svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="1" width="6.5" height="6.5" rx="1.5"/>
+        <rect x="10.5" y="1" width="6.5" height="6.5" rx="1.5"/>
+        <rect x="10.5" y="10.5" width="6.5" height="6.5" rx="1.5"/>
+        <rect x="1" y="10.5" width="6.5" height="6.5" rx="1.5"/>
+    </svg>`,
+    jobs: `<svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1.5" y="6" width="15" height="10" rx="1.5"/>
+        <path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3h3A1.5 1.5 0 0 1 12 4.5V6"/>
+        <line x1="1.5" y1="10" x2="16.5" y2="10"/>
+    </svg>`,
+    applications: `<svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3.5 2h11A1.5 1.5 0 0 1 16 3.5v11A1.5 1.5 0 0 1 14.5 16h-11A1.5 1.5 0 0 1 2 14.5v-11A1.5 1.5 0 0 1 3.5 2z"/>
+        <line x1="5.5" y1="7" x2="12.5" y2="7"/>
+        <line x1="5.5" y1="10" x2="12.5" y2="10"/>
+        <line x1="5.5" y1="13" x2="9" y2="13"/>
+    </svg>`,
+    auth: `<svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="6" r="3"/>
+        <path d="M2 17c0-3.866 3.134-7 7-7s7 3.134 7 7"/>
+    </svg>`
+};
+
 function renderNavigation(activePage, user) {
     const nav = document.getElementById("siteNav");
     if (!nav) {
@@ -39,6 +63,7 @@ function renderNavigation(activePage, user) {
 
     nav.innerHTML = links.map((link) => `
         <a class="nav-link ${link.key === activePage ? "active" : ""}" href="${link.href}">
+            ${NAV_ICONS[link.key] || ""}
             ${escapeHtml(link.label)}
         </a>
     `).join("");
@@ -51,13 +76,25 @@ function renderHeaderActions(user) {
     }
 
     if (!user) {
-        actions.innerHTML = '<a class="button secondary" href="/login.html">Sign In</a>';
+        actions.innerHTML = '<a class="button ghost sm" href="/login.html">Sign In</a>';
         return;
     }
 
+    const initials = user.name
+        .split(" ")
+        .slice(0, 2)
+        .map((part) => part.charAt(0))
+        .join("");
+
     actions.innerHTML = `
-        <span class="user-chip">${escapeHtml(user.name)} | ${escapeHtml(roleLabel(user.role))}</span>
-        <button class="button ghost" id="logoutButton" type="button">Logout</button>
+        <div class="topbar-user">
+            <div class="topbar-avatar">${escapeHtml(initials)}</div>
+            <div class="topbar-user-info">
+                <span class="topbar-user-name">${escapeHtml(user.name)}</span>
+                <span class="topbar-user-role">${escapeHtml(roleLabel(user.role))}</span>
+            </div>
+        </div>
+        <button class="button ghost sm" id="logoutButton" type="button">Logout</button>
     `;
 
     const logoutButton = document.getElementById("logoutButton");

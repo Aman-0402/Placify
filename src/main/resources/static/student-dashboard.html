@@ -11,6 +11,8 @@
 <body>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="app">
+
+    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <img class="brand-logo" src="/images/Logo.png" alt="Placify">
@@ -19,14 +21,18 @@
                 <small>Campus Placement OS</small>
             </div>
         </div>
-        <p class="sidebar-section-label">Navigation</p>
+
+        <p class="sidebar-section-label">Student Menu</p>
         <nav id="siteNav"></nav>
+
         <div class="sidebar-footer">
-            <div id="headerActions"></div>
+            <p class="sidebar-version">Placify &bull; v1.0</p>
         </div>
     </aside>
 
+    <!-- Main content -->
     <div class="app-main">
+        <!-- Topbar -->
         <header class="topbar">
             <button class="topbar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -36,33 +42,44 @@
                 </svg>
             </button>
             <span class="topbar-title">Student Dashboard</span>
+            <div class="topbar-right">
+                <button class="topbar-notify" type="button" aria-label="Notifications">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                        <path d="M8 1.5a4.5 4.5 0 0 1 4.5 4.5c0 2.5.8 3.8 1.5 4.5H2c.7-.7 1.5-2 1.5-4.5A4.5 4.5 0 0 1 8 1.5z"/>
+                        <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/>
+                    </svg>
+                    <span class="topbar-notify-dot"></span>
+                </button>
+                <div id="headerActions"></div>
+            </div>
         </header>
 
+        <!-- Page -->
         <main class="page-content">
             <div class="page-main">
-                <section class="hero-grid">
-                    <article class="hero-panel hero-panel-primary">
-                        <span class="eyebrow">Student Workspace</span>
-                        <h1 id="studentHeroTitle">Track your placement journey.</h1>
-                        <p class="lead" id="studentHeroSubtitle">
-                            Keep your profile current, monitor active roles, and follow your application progress.
-                        </p>
-                        <div class="hero-actions">
-                            <a class="button secondary" href="/jobs.html">Browse Roles</a>
-                            <a class="button ghost" href="/applications.html">My Applications</a>
-                        </div>
-                    </article>
-
-                    <aside class="hero-panel hero-panel-secondary">
-                        <span class="eyebrow subdued">Account</span>
-                        <div class="summary-list" id="accountSnapshot"></div>
-                    </aside>
-                </section>
 
                 <div class="alert hidden" id="pageMessage" role="status" aria-live="polite"></div>
 
-                <section class="stats-grid" id="statsGrid"></section>
+                <!-- Welcome banner -->
+                <section class="db-welcome">
+                    <div class="db-welcome-inner">
+                        <div class="db-welcome-text">
+                            <span class="db-welcome-eyebrow">Student Workspace</span>
+                            <h1 class="db-welcome-title" id="studentHeroTitle">Track your placement journey.</h1>
+                            <p class="db-welcome-sub" id="studentHeroSubtitle">Keep your profile current, scan open roles, and monitor your applications.</p>
+                            <div class="db-welcome-actions">
+                                <a class="button secondary" href="/jobs.html">Browse Roles</a>
+                                <a class="button ghost" href="/applications.html">My Applications</a>
+                            </div>
+                        </div>
+                        <div class="db-welcome-right" id="accountSnapshot"></div>
+                    </div>
+                </section>
 
+                <!-- Stats row -->
+                <div class="scards-row" id="statsGrid"></div>
+
+                <!-- Profile -->
                 <section class="content-grid">
                     <section class="panel">
                         <div class="panel-header">
@@ -72,7 +89,7 @@
                                 <p class="panel-copy">Keep these details current before applying.</p>
                             </div>
                         </div>
-                        <div class="summary-list" id="profileSummary"></div>
+                        <div id="profileSummary"></div>
                     </section>
 
                     <section class="panel">
@@ -85,43 +102,46 @@
                         </div>
                         <form id="profileForm" class="form-stack">
                             <label class="field">
-                                <span>Branch</span>
-                                <input id="profileBranch" type="text" placeholder="Computer Science" required>
+                                <span>Branch / Department</span>
+                                <input id="profileBranch" type="text" placeholder="e.g. Computer Science" required>
                             </label>
                             <label class="field">
                                 <span>Skills</span>
-                                <textarea id="profileSkills" placeholder="Spring Boot, Hibernate, MySQL, REST APIs" required></textarea>
+                                <textarea id="profileSkills" placeholder="Java, Spring Boot, MySQL, REST APIs" required></textarea>
                             </label>
                             <label class="field">
                                 <span>Resume Link</span>
-                                <input id="profileResume" type="text" placeholder="https://..." required>
+                                <input id="profileResume" type="url" placeholder="https://drive.google.com/..." required>
                             </label>
-                            <button class="button primary" id="profileButton" type="submit">Save Profile</button>
+                            <button class="button primary" id="profileButton" type="submit">Save Changes</button>
                         </form>
                     </section>
                 </section>
 
+                <!-- Available jobs -->
                 <section class="panel">
-                    <div class="panel-header">
+                    <div class="section-row">
                         <div>
-                            <span class="eyebrow">Available Jobs</span>
-                            <h2>Open roles</h2>
+                            <p class="section-row-label">Opportunities</p>
+                            <h2>Open roles for you</h2>
                         </div>
-                        <a class="button secondary" href="/jobs.html">View All Roles</a>
+                        <a class="button secondary sm" href="/jobs.html">View All</a>
                     </div>
-                    <div class="cards-grid" id="availableJobsGrid"></div>
+                    <div id="availableJobsGrid"></div>
                 </section>
 
+                <!-- Recent applications -->
                 <section class="panel">
-                    <div class="panel-header">
+                    <div class="section-row">
                         <div>
-                            <span class="eyebrow">Recent Applications</span>
-                            <h2>Latest submissions</h2>
+                            <p class="section-row-label">Applications</p>
+                            <h2>Your submissions</h2>
                         </div>
-                        <a class="button secondary" href="/applications.html">Open Applications</a>
+                        <a class="button secondary sm" href="/applications.html">Open All</a>
                     </div>
-                    <div class="cards-grid" id="recentApplicationsGrid"></div>
+                    <div id="recentApplicationsGrid"></div>
                 </section>
+
             </div>
         </main>
     </div>

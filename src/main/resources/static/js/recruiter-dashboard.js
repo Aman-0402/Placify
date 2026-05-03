@@ -12,9 +12,7 @@ import {
     hideMessage,
     initializeLayout,
     renderLoadingCards,
-    renderLoadingStats,
     renderLoadingSummary,
-    renderStats,
     setPageBusy,
     setButtonBusy,
     showMessage
@@ -60,7 +58,6 @@ async function init() {
     renderLoadingSummary(companiesList, 3);
     renderLoadingCards(managedJobsGrid, 3);
     renderLoadingCards(applicationPreviewGrid, 3);
-    renderLoadingStats(statsGrid, 4);
     await loadDashboard();
     setPageBusy(false);
 }
@@ -111,18 +108,47 @@ async function loadDashboard() {
 }
 
 function renderManagerSummary() {
+    const initials = state.user.name
+        .split(" ")
+        .slice(0, 2)
+        .map((p) => p.charAt(0))
+        .join("");
+
     managerSummary.innerHTML = `
-        <div class="summary-item">
-            <strong>Name</strong>
-            <p>${escapeHtml(state.user.name)}</p>
+        <div class="db-snap-item">
+            <div class="db-snap-icon indigo">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                    <circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.314 2.686-6 6-6s6 2.686 6 6"/>
+                </svg>
+            </div>
+            <div class="db-snap-text">
+                <div class="db-snap-label">Name</div>
+                <div class="db-snap-value">${escapeHtml(state.user.name)}</div>
+            </div>
         </div>
-        <div class="summary-item">
-            <strong>Email</strong>
-            <p>${escapeHtml(state.user.email)}</p>
+        <div class="db-snap-item">
+            <div class="db-snap-icon cyan">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                    <rect x="1.5" y="4" width="13" height="10" rx="1.5"/>
+                    <path d="M5.5 4V3A1.5 1.5 0 0 1 7 1.5h2A1.5 1.5 0 0 1 10.5 3v1"/>
+                    <line x1="1.5" y1="8" x2="14.5" y2="8"/>
+                </svg>
+            </div>
+            <div class="db-snap-text">
+                <div class="db-snap-label">Role</div>
+                <div class="db-snap-value">${escapeHtml(state.user.role)}</div>
+            </div>
         </div>
-        <div class="summary-item">
-            <strong>Role</strong>
-            <p>${escapeHtml(state.user.role)}</p>
+        <div class="db-snap-item">
+            <div class="db-snap-icon warning">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                    <path d="M8 2L2 14h12L8 2z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12" r="0.5" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="db-snap-text">
+                <div class="db-snap-label">Open Jobs</div>
+                <div class="db-snap-value">${state.jobs.filter((j) => j.active).length} active</div>
+            </div>
         </div>
     `;
 }
@@ -145,56 +171,51 @@ function renderCompanies() {
     }
 
     companiesList.innerHTML = state.companies.map((company) => `
-        <div class="summary-item">
-            <strong>${escapeHtml(company.name)}</strong>
-            <p>${escapeHtml(truncate(company.description, 140))}</p>
+        <div class="co-card">
+            <div class="co-card-logo">${escapeHtml(company.name.charAt(0))}</div>
+            <div class="co-card-info">
+                <div class="co-card-name">${escapeHtml(company.name)}</div>
+                <div class="co-card-desc">${escapeHtml(truncate(company.description, 100))}</div>
+            </div>
         </div>
     `).join("");
 }
 
 function renderJobs() {
     if (!state.jobs.length) {
-        managedJobsGrid.innerHTML = emptyState("No jobs posted yet.");
+        managedJobsGrid.innerHTML = emptyState("No jobs posted yet. Use the form above to create your first posting.");
         return;
     }
 
-    managedJobsGrid.innerHTML = state.jobs.slice(0, 8).map((job) => `
-        <article class="card">
-            <div class="card-head">
+    const jobCards = state.jobs.slice(0, 8).map((job) => `
+        <article class="rjcard">
+            <div class="rjcard-head">
                 <div class="chip-row">
-                    <span class="status-pill ${job.active ? "success" : "warning"}">
-                        ${job.active ? "Active" : "Inactive"}
-                    </span>
+                    <span class="status-pill ${job.active ? "success" : "warning"}">${job.active ? "Active" : "Inactive"}</span>
                     <span class="micro-pill">${escapeHtml(job.companyName)}</span>
                 </div>
-                <h3>${escapeHtml(job.title)}</h3>
-                <p class="card-summary">${escapeHtml(truncate(job.description, 150))}</p>
+                <div class="rjcard-title">${escapeHtml(job.title)}</div>
+                <div class="rjcard-desc">${escapeHtml(truncate(job.description, 130))}</div>
             </div>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <span>Eligibility</span>
-                    <strong>${escapeHtml(job.eligibility)}</strong>
+            <div class="rjcard-meta">
+                <div class="rjcard-meta-item">
+                    <span class="rjcard-meta-label">Eligibility</span>
+                    <span class="rjcard-meta-value">${escapeHtml(job.eligibility)}</span>
                 </div>
-                <div class="detail-item">
-                    <span>Created</span>
-                    <strong>${escapeHtml(formatDateTime(job.createdAt))}</strong>
-                </div>
-                <div class="detail-item">
-                    <span>Role Status</span>
-                    <strong>${escapeHtml(job.active ? "Open" : "Closed")}</strong>
-                </div>
-                <div class="detail-item">
-                    <span>Company</span>
-                    <strong>${escapeHtml(job.companyName)}</strong>
+                <div class="rjcard-meta-item">
+                    <span class="rjcard-meta-label">Posted</span>
+                    <span class="rjcard-meta-value">${escapeHtml(formatDateTime(job.createdAt))}</span>
                 </div>
             </div>
-            <div class="panel-actions">
-                <button class="button secondary" data-edit-job="${job.id}" type="button">Edit</button>
-                <button class="button danger" data-delete-job="${job.id}" type="button">Delete</button>
-                <a class="button ghost" href="/applications.html?jobId=${job.id}">Review Applicants</a>
+            <div class="rjcard-actions">
+                <button class="button secondary sm" data-edit-job="${job.id}" type="button">Edit</button>
+                <button class="button danger sm" data-delete-job="${job.id}" type="button">Delete</button>
+                <a class="button ghost sm" href="/applications.html?jobId=${job.id}">Applicants</a>
             </div>
         </article>
     `).join("");
+
+    managedJobsGrid.innerHTML = `<div class="cards-grid">${jobCards}</div>`;
 }
 
 function renderApplicationsPreview() {
@@ -203,44 +224,90 @@ function renderApplicationsPreview() {
         return;
     }
 
-    applicationPreviewGrid.innerHTML = state.applications.slice(0, 6).map((application) => `
-        <article class="card">
-            <div class="card-head">
-                <div class="chip-row">
-                    <span class="status-pill ${statusTone(application.status)}">${escapeHtml(titleCase(application.status))}</span>
-                    <span class="micro-pill">${escapeHtml(application.jobTitle)}</span>
+    const appCards = state.applications.slice(0, 6).map((app) => {
+        const initials = app.studentName
+            .split(" ")
+            .slice(0, 2)
+            .map((p) => p.charAt(0))
+            .join("");
+
+        return `
+        <article class="racard">
+            <div class="racard-top">
+                <div class="racard-student">
+                    <div class="racard-avatar">${escapeHtml(initials)}</div>
+                    <div>
+                        <div class="racard-name">${escapeHtml(app.studentName)}</div>
+                        <div class="racard-job">${escapeHtml(app.jobTitle)} &bull; ${escapeHtml(app.companyName)}</div>
+                    </div>
                 </div>
-                <h3>${escapeHtml(application.studentName)}</h3>
+                <span class="status-pill ${statusTone(app.status)}">${escapeHtml(titleCase(app.status))}</span>
             </div>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <span>Job</span>
-                    <strong>${escapeHtml(application.jobTitle)}</strong>
+            <div class="racard-meta">
+                <div class="racard-meta-item">
+                    <span class="racard-meta-key">Applied</span>
+                    <span class="racard-meta-val">${escapeHtml(formatDateTime(app.createdAt))}</span>
                 </div>
-                <div class="detail-item">
-                    <span>Company</span>
-                    <strong>${escapeHtml(application.companyName)}</strong>
-                </div>
-                <div class="detail-item">
-                    <span>Applied</span>
-                    <strong>${escapeHtml(formatDateTime(application.createdAt))}</strong>
-                </div>
-                <div class="detail-item">
-                    <span>Status</span>
-                    <strong>${escapeHtml(titleCase(application.status))}</strong>
+                <div class="racard-meta-item">
+                    <span class="racard-meta-key">Status</span>
+                    <span class="racard-meta-val">${escapeHtml(titleCase(app.status))}</span>
                 </div>
             </div>
         </article>
-    `).join("");
+        `;
+    }).join("");
+
+    applicationPreviewGrid.innerHTML = `<div class="cards-grid">${appCards}</div>`;
 }
 
 function renderStatsBar() {
-    renderStats(statsGrid, [
-        {label: "Companies", value: state.companies.length},
-        {label: "Jobs", value: state.jobs.length},
-        {label: "Applications", value: state.applications.length},
-        {label: "Role", value: state.user.role}
-    ]);
+    const activeJobs = state.jobs.filter((j) => j.active).length;
+    const shortlisted = state.applications.filter(
+        (a) => a.status === "SHORTLISTED" || a.status === "SELECTED"
+    ).length;
+
+    statsGrid.innerHTML = `
+        <div class="scard">
+            <div class="scard-icon cyan">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                    <rect x="1.5" y="3" width="15" height="12" rx="1.5"/>
+                    <path d="M6 3V1.5M12 3V1.5"/><line x1="1.5" y1="7" x2="16.5" y2="7"/>
+                </svg>
+            </div>
+            <div class="scard-value">${state.companies.length}</div>
+            <div class="scard-label">Companies</div>
+        </div>
+        <div class="scard">
+            <div class="scard-icon indigo">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                    <rect x="1.5" y="4.5" width="15" height="11" rx="1.5"/>
+                    <path d="M5.5 4.5V3A1.5 1.5 0 0 1 7 1.5h4A1.5 1.5 0 0 1 12.5 3v1.5"/>
+                    <line x1="1.5" y1="9" x2="16.5" y2="9"/>
+                </svg>
+            </div>
+            <div class="scard-value">${activeJobs}</div>
+            <div class="scard-label">Active Jobs</div>
+        </div>
+        <div class="scard">
+            <div class="scard-icon warning">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                    <path d="M3 3h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+                    <line x1="5" y1="7" x2="13" y2="7"/><line x1="5" y1="10" x2="13" y2="10"/><line x1="5" y1="13" x2="9" y2="13"/>
+                </svg>
+            </div>
+            <div class="scard-value">${state.applications.length}</div>
+            <div class="scard-label">Applications</div>
+        </div>
+        <div class="scard">
+            <div class="scard-icon success">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                    <circle cx="9" cy="9" r="7"/><path d="M6 9l2.5 2.5 4-4"/>
+                </svg>
+            </div>
+            <div class="scard-value">${shortlisted}</div>
+            <div class="scard-label">Shortlisted</div>
+        </div>
+    `;
 }
 
 async function saveCompany(event) {
@@ -324,7 +391,7 @@ async function handleJobActions(event) {
     }
 
     const jobId = Number(deleteButton.dataset.deleteJob);
-    if (!window.confirm("Delete this job posting?")) {
+    if (!window.confirm("Delete this job posting? This cannot be undone.")) {
         return;
     }
 
