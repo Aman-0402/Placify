@@ -4,227 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#07101f">
-    <title>Placify | Login &amp; Register</title>
+    <title>Placify | Smart Campus Placement</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="app">
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <img class="brand-logo" src="/images/Logo.png" alt="Placify">
-            <div class="brand-copy">
-                <strong>Placify</strong>
-                <small>Campus Placement OS</small>
-            </div>
+<body class="landing-body">
+
+<nav class="l-nav">
+    <div class="l-nav-inner">
+        <a class="l-brand" href="/">
+            <img src="/images/Logo.png" alt="Placify">
+            <span class="l-brand-name">Placify</span>
+        </a>
+        <div class="l-nav-links">
+            <a class="l-nav-link active" href="/">Home</a>
+            <a class="l-nav-link" href="#features">Features</a>
+            <a class="l-nav-link" href="#how-it-works">How it works</a>
+            <a class="l-nav-link" href="#about">About</a>
         </div>
-        <p class="sidebar-section-label">Navigation</p>
-        <nav id="siteNav"></nav>
-        <div class="sidebar-footer">
-            <div id="headerActions"></div>
+        <div class="l-nav-actions" id="landingNavActions">
+            <a class="button ghost" href="/login.html">Login</a>
+            <a class="button primary" href="/register.html">Sign Up Free</a>
         </div>
-    </aside>
-
-    <div class="app-main">
-        <header class="topbar">
-            <button class="topbar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <rect y="2" width="16" height="1.5" rx="1" fill="currentColor"/>
-                    <rect y="7.25" width="16" height="1.5" rx="1" fill="currentColor"/>
-                    <rect y="12.5" width="16" height="1.5" rx="1" fill="currentColor"/>
-                </svg>
-            </button>
-            <span class="topbar-title">Login &amp; Register</span>
-        </header>
-
-        <main class="page-content">
-            <div class="page-main">
-                <section class="hero-grid">
-                    <article class="hero-panel hero-panel-primary">
-                        <span class="eyebrow">Campus Placement OS</span>
-                        <h1>Placement workflows, made clear.</h1>
-                        <p class="lead">
-                            One secure platform for student applications, recruiter hiring, and admin control.
-                        </p>
-                        <div class="hero-actions">
-                            <a class="button secondary" href="/jobs.html">Explore Roles</a>
-                            <a class="button ghost" href="/applications.html">Track Applications</a>
-                        </div>
-                        <div class="hero-kpis">
-                            <div class="kpi-card">
-                                <strong>Role-based access</strong>
-                                <p>Dedicated views for students, recruiters, and admins.</p>
-                            </div>
-                            <div class="kpi-card">
-                                <strong>Live job tracking</strong>
-                                <p>From role discovery to application status in one flow.</p>
-                            </div>
-                            <div class="kpi-card">
-                                <strong>Secure sessions</strong>
-                                <p>JWT protection for all sensitive workflow actions.</p>
-                            </div>
-                        </div>
-                    </article>
-
-                    <aside class="hero-panel hero-panel-secondary">
-                        <div class="panel-header">
-                            <div>
-                                <span class="eyebrow subdued">Why Placify</span>
-                                <h2>Built for real placement cycles</h2>
-                                <p class="panel-copy">Short flows, clear actions, no unnecessary clutter.</p>
-                            </div>
-                        </div>
-                        <section class="landing-mockup" aria-label="Placement workflow preview">
-                            <div class="mockup-window">
-                                <div class="mockup-window-bar">
-                                    <span></span><span></span><span></span>
-                                </div>
-                                <div class="mockup-metrics">
-                                    <div class="mockup-metric">
-                                        <small>Active Roles</small>
-                                        <strong>24</strong>
-                                    </div>
-                                    <div class="mockup-metric">
-                                        <small>Shortlisted</small>
-                                        <strong>08</strong>
-                                    </div>
-                                    <div class="mockup-metric">
-                                        <small>Companies</small>
-                                        <strong>12</strong>
-                                    </div>
-                                </div>
-                                <div class="mockup-steps">
-                                    <div class="mockup-step">
-                                        <span class="mockup-badge">01</span>
-                                        <div>
-                                            <strong>Discover</strong>
-                                            <p>Search campus roles by fit and eligibility.</p>
-                                        </div>
-                                    </div>
-                                    <div class="mockup-step">
-                                        <span class="mockup-badge">02</span>
-                                        <div>
-                                            <strong>Apply</strong>
-                                            <p>Submit directly with your verified profile.</p>
-                                        </div>
-                                    </div>
-                                    <div class="mockup-step">
-                                        <span class="mockup-badge">03</span>
-                                        <div>
-                                            <strong>Track</strong>
-                                            <p>Follow shortlist, review, and final outcomes.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                        <div class="summary-list">
-                            <div class="summary-item">
-                                <strong>Students</strong>
-                                <p>Keep your profile ready, browse eligible roles, and apply fast.</p>
-                            </div>
-                            <div class="summary-item">
-                                <strong>Recruiters</strong>
-                                <p>Post openings, review candidates, and update statuses quickly.</p>
-                            </div>
-                            <div class="summary-item">
-                                <strong>Admins</strong>
-                                <p>Manage company records and keep platform data structured.</p>
-                            </div>
-                        </div>
-                    </aside>
-                </section>
-
-                <div class="alert hidden" id="pageMessage" role="status" aria-live="polite"></div>
-
-                <section class="auth-grid">
-                    <section class="panel">
-                        <div class="panel-header">
-                            <div>
-                                <span class="eyebrow">Login</span>
-                                <h2>Access your workspace</h2>
-                                <p class="panel-copy">Use your registered account to continue.</p>
-                            </div>
-                        </div>
-                        <form id="loginForm" class="form-stack">
-                            <label class="field">
-                                <span>Email</span>
-                                <input id="loginEmail" type="email" placeholder="name@Placify.com" required>
-                            </label>
-                            <label class="field">
-                                <span>Password</span>
-                                <input id="loginPassword" type="password" placeholder="Enter your password" required>
-                            </label>
-                            <button class="button primary" id="loginButton" type="submit">Login</button>
-                        </form>
-                    </section>
-
-                    <section class="panel">
-                        <div class="panel-header">
-                            <div>
-                                <span class="eyebrow">Register</span>
-                                <h2>Create an account</h2>
-                                <p class="panel-copy">Student and recruiter access can be created here.</p>
-                            </div>
-                        </div>
-                        <form id="registerForm" class="form-stack">
-                            <div class="form-grid">
-                                <label class="field">
-                                    <span>Name</span>
-                                    <input id="registerName" type="text" placeholder="Your full name" required>
-                                </label>
-                                <label class="field">
-                                    <span>Email</span>
-                                    <input id="registerEmail" type="email" placeholder="you@example.com" required>
-                                </label>
-                            </div>
-                            <div class="form-grid">
-                                <label class="field">
-                                    <span>Password</span>
-                                    <input id="registerPassword" type="password" placeholder="Minimum 6 characters" minlength="6" required>
-                                </label>
-                                <label class="field">
-                                    <span>Role</span>
-                                    <select id="registerRole" required>
-                                        <option value="STUDENT">STUDENT</option>
-                                        <option value="RECRUITER">RECRUITER</option>
-                                    </select>
-                                </label>
-                            </div>
-                            <div class="student-fields" id="studentFields">
-                                <div class="form-grid">
-                                    <label class="field">
-                                        <span>Branch</span>
-                                        <input id="registerBranch" type="text" placeholder="Computer Science">
-                                    </label>
-                                    <label class="field">
-                                        <span>Resume Link</span>
-                                        <input id="registerResume" type="text" placeholder="https://...">
-                                    </label>
-                                </div>
-                                <label class="field">
-                                    <span>Skills</span>
-                                    <textarea id="registerSkills" placeholder="Java, Spring Boot, SQL, REST APIs"></textarea>
-                                </label>
-                            </div>
-                            <button class="button primary" id="registerButton" type="submit">Register</button>
-                        </form>
-                    </section>
-                </section>
-            </div>
-        </main>
+        <button class="l-nav-toggle" type="button" aria-label="Menu">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect y="2" width="18" height="2" rx="1" fill="currentColor"/>
+                <rect y="8" width="18" height="2" rx="1" fill="currentColor"/>
+                <rect y="14" width="18" height="2" rx="1" fill="currentColor"/>
+            </svg>
+        </button>
     </div>
+</nav>
+
+<div class="l-page">
+
+    <!-- Hero -->
+    <section class="l-hero">
+        <div class="l-hero-inner">
+            <div class="l-hero-text">
+                <div class="l-hero-badge"><span>New</span> Smart campus placement, simplified</div>
+                <h1 class="l-hero-title">Campus placements<br>made <em>effortless</em></h1>
+                <p class="l-hero-desc">One secure platform where students discover jobs, recruiters hire top talent, and admins keep everything running smoothly.</p>
+                <div class="l-hero-actions">
+                    <a class="button primary" href="/register.html">Get Started Free</a>
+                    <a class="button ghost" href="/login.html">Sign In</a>
+                </div>
+                <p class="l-hero-note">No credit card required &bull; Free for students</p>
+            </div>
+            <div class="l-hero-visual">
+                <div class="l-mockup">
+                    <div class="l-mockup-bar">
+                        <span class="l-mockup-dot"></span><span class="l-mockup-dot"></span><span class="l-mockup-dot"></span>
+                        <span class="l-mockup-title">Placify Dashboard</span>
+                    </div>
+                    <div class="l-mockup-body">
+                        <div class="l-mockup-stat-row">
+                            <div class="l-mockup-stat"><small>Active Roles</small><strong>24</strong></div>
+                            <div class="l-mockup-stat"><small>Shortlisted</small><strong>08</strong></div>
+                            <div class="l-mockup-stat"><small>Companies</small><strong>12</strong></div>
+                        </div>
+                        <div class="l-mockup-list">
+                            <div class="l-mockup-row">
+                                <span class="l-mockup-row-dot green"></span>
+                                <div class="l-mockup-row-text"><span>Software Engineer — Microsoft</span><small>B.Tech CSE, 2026 batch</small></div>
+                                <span class="l-mockup-row-pill success">Active</span>
+                            </div>
+                            <div class="l-mockup-row">
+                                <span class="l-mockup-row-dot yellow"></span>
+                                <div class="l-mockup-row-text"><span>Data Analyst — Amazon</span><small>Any branch, 7.0+ CGPA</small></div>
+                                <span class="l-mockup-row-pill warning">In Review</span>
+                            </div>
+                            <div class="l-mockup-row">
+                                <span class="l-mockup-row-dot indigo"></span>
+                                <div class="l-mockup-row-text"><span>Backend Developer — Deloitte</span><small>B.Tech, 2025–2026 batch</small></div>
+                                <span class="l-mockup-row-pill indigo">Applied</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="l-section l-section--stats">
+        <div class="l-section-inner">
+            <div class="l-stats-row">
+                <div class="l-stat-item"><span class="l-stat-num">500+</span><span class="l-stat-lbl">Students Placed</span></div>
+                <div class="l-stat-item"><span class="l-stat-num">80+</span><span class="l-stat-lbl">Companies Hiring</span></div>
+                <div class="l-stat-item"><span class="l-stat-num">300+</span><span class="l-stat-lbl">Active Job Listings</span></div>
+                <div class="l-stat-item"><span class="l-stat-num">95%</span><span class="l-stat-lbl">Placement Rate</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="l-section" id="features">
+        <div class="l-section-inner">
+            <div class="l-section-header">
+                <span class="l-label">Features</span>
+                <h2 class="l-heading">Everything your placement cell needs</h2>
+                <p class="l-subheading">Built for every stakeholder — students, recruiters, and admins all have dedicated workflows.</p>
+            </div>
+            <div class="l-features-grid">
+                <div class="l-feature-card">
+                    <div class="l-feature-icon indigo">🎓</div>
+                    <p class="l-feature-title">For Students</p>
+                    <p class="l-feature-desc">Manage your profile, discover eligible jobs, and track every application from one place.</p>
+                    <ul class="l-feature-list">
+                        <li>Browse and filter active job listings</li>
+                        <li>One-click application submission</li>
+                        <li>Real-time application status tracking</li>
+                        <li>Profile with skills and resume link</li>
+                    </ul>
+                </div>
+                <div class="l-feature-card">
+                    <div class="l-feature-icon cyan">💼</div>
+                    <p class="l-feature-title">For Recruiters</p>
+                    <p class="l-feature-desc">Post openings, review candidates, and move talent through your pipeline with minimal friction.</p>
+                    <ul class="l-feature-list">
+                        <li>Create and manage job postings</li>
+                        <li>Review and filter candidate applications</li>
+                        <li>Update application statuses in bulk</li>
+                        <li>Company directory management</li>
+                    </ul>
+                </div>
+                <div class="l-feature-card">
+                    <div class="l-feature-icon green">🛡️</div>
+                    <p class="l-feature-title">For Admins</p>
+                    <p class="l-feature-desc">Maintain platform integrity — manage companies, oversee all jobs, and keep data structured.</p>
+                    <ul class="l-feature-list">
+                        <li>Full company record management</li>
+                        <li>Platform-wide oversight of all jobs</li>
+                        <li>Admin-level application controls</li>
+                        <li>Role-based access enforcement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how-it-works" class="l-section l-steps l-section--steps">
+        <div class="l-section-inner l-section-inner--steps">
+            <div class="l-section-header--narrow">
+                <span class="l-label cyan">How it works</span>
+                <h2 class="l-heading">From sign-up to placement in 3 steps</h2>
+            </div>
+            <div class="l-steps-grid">
+                <div class="l-step">
+                    <div class="l-step-num">01</div>
+                    <p class="l-step-title">Create your profile</p>
+                    <p class="l-step-desc">Register, fill in your branch, skills, and resume. Recruiters see a clean verified profile — not a cluttered CV.</p>
+                </div>
+                <div class="l-step">
+                    <div class="l-step-num">02</div>
+                    <p class="l-step-title">Discover and apply</p>
+                    <p class="l-step-desc">Browse jobs filtered by title, company, eligibility, or location. Apply in one click from the listings page.</p>
+                </div>
+                <div class="l-step">
+                    <div class="l-step-num">03</div>
+                    <p class="l-step-title">Track your outcome</p>
+                    <p class="l-step-desc">Follow your application through Applied → In Review → Shortlisted → Selected in real time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="l-cta-section" id="about">
+        <div class="l-cta-inner">
+            <span class="l-label l-label--spaced">Get started today</span>
+            <h2 class="l-cta-title">Ready to streamline your campus placements?</h2>
+            <p class="l-cta-desc">Join students and recruiters already using Placify to make campus hiring faster, fairer, and fully transparent.</p>
+            <div class="l-cta-actions">
+                <a class="button primary" href="/register.html">Create Free Account</a>
+                <a class="button ghost" href="/login.html">Sign In</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="l-footer">
+        <div class="l-footer-inner">
+            <div class="l-footer-brand">
+                <img src="/images/Logo.png" alt="Placify"> Placify
+            </div>
+            <span class="l-footer-copy">&copy; 2026 Placify. Smart Campus Placement OS.</span>
+            <div class="l-footer-links">
+                <a class="l-footer-link" href="/login.html">Login</a>
+                <a class="l-footer-link" href="/register.html">Register</a>
+                <a class="l-footer-link" href="/jobs.html">Jobs</a>
+            </div>
+        </div>
+    </footer>
 </div>
 
-<script>
-    const toggle = document.getElementById("sidebarToggle");
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("sidebarOverlay");
-    function closeSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("open"); }
-    toggle.addEventListener("click", () => { sidebar.classList.toggle("open"); overlay.classList.toggle("open"); });
-    overlay.addEventListener("click", closeSidebar);
-</script>
-<script type="module" src="/js/auth-page.js"></script>
+<script type="module" src="/js/landing-page.js"></script>
 </body>
 </html>

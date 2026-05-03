@@ -173,7 +173,7 @@ export async function requireAuth(allowedRoles = []) {
 
         if (!user) {
             setFlash("error", "Please login to continue.");
-            window.location.replace("/index.html");
+            window.location.replace("/login.html");
             return null;
         }
 
@@ -187,7 +187,7 @@ export async function requireAuth(allowedRoles = []) {
     } catch (error) {
         if (error.status === 401 || error.status === 403) {
             setFlash("error", "Your session expired. Please login again.");
-            window.location.replace("/index.html");
+            window.location.replace("/login.html");
             return null;
         }
         throw error;

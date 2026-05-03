@@ -33,7 +33,7 @@ function renderNavigation(activePage, user) {
         links.push({key: "jobs", href: "/jobs.html", label: "Jobs"});
         links.push({key: "applications", href: "/applications.html", label: "Applications"});
     } else {
-        links.push({key: "auth", href: "/index.html", label: "Login"});
+        links.push({key: "auth", href: "/login.html", label: "Login"});
         links.push({key: "jobs", href: "/jobs.html", label: "Jobs"});
     }
 
@@ -51,7 +51,7 @@ function renderHeaderActions(user) {
     }
 
     if (!user) {
-        actions.innerHTML = '<a class="button secondary" href="/index.html">Sign In</a>';
+        actions.innerHTML = '<a class="button secondary" href="/login.html">Sign In</a>';
         return;
     }
 
