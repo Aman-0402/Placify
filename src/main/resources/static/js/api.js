@@ -1,14 +1,14 @@
 /*
 Development Notes
-- JWT session key: localStorage["careerlink.session"]
-- Flash message key: sessionStorage["careerlink.flash"]
-- Pending job key: sessionStorage["careerlink.pendingJob"]
+- JWT session key: localStorage["Placify.session"]
+- Flash message key: sessionStorage["Placify.flash"]
+- Pending job key: sessionStorage["Placify.pendingJob"]
 - API convention: same-origin requests under /api/*
 */
 
-const SESSION_KEY = "careerlink.session";
-const FLASH_KEY = "careerlink.flash";
-const PENDING_JOB_KEY = "careerlink.pendingJob";
+const SESSION_KEY = "Placify.session";
+const FLASH_KEY = "Placify.flash";
+const PENDING_JOB_KEY = "Placify.pendingJob";
 
 function readStorage(storage, key) {
     const raw = storage.getItem(key);

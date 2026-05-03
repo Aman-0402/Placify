@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.careerlink</groupId>
-    <artifactId>careerlink</artifactId>
+    <groupId>com.placify</groupId>
+    <artifactId>placify</artifactId>
     <version>1.0.0</version>
-    <name>CareerLink</name>
+    <name>Placify</name>
     <description>Smart Campus Placement Management System</description>
 
     <properties>
