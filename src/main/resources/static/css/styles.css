@@ -1307,6 +1307,7 @@ input:focus, textarea:focus, select:focus {
 .skills-field-wrap { position: relative; }
 
 .skills-box {
+    position: relative;
     min-height: 100px;
     padding: 8px;
     border: 1px solid var(--border-strong);
@@ -1394,6 +1395,61 @@ input:focus, textarea:focus, select:focus {
 .skill-suggestion:hover { background: var(--indigo-dim); color: var(--indigo-light); }
 .skill-suggestion-hint { color: var(--muted); font-size: 0.75rem; }
 .skills-hint { color: var(--muted); font-size: 0.76rem; margin-top: 6px; }
+
+/* landing mobile nav open state */
+.l-nav-links.open,
+.l-nav-actions.open {
+    display: flex;
+}
+@media (max-width: 640px) {
+    .l-nav-links.open {
+        position: absolute;
+        top: 64px;
+        left: 0; right: 0;
+        flex-direction: column;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border-strong);
+        padding: 16px 20px;
+        gap: 4px;
+        z-index: 99;
+    }
+    .l-nav-actions.open {
+        position: absolute;
+        top: auto;
+        flex-direction: column;
+        padding: 0 20px 16px;
+        background: var(--bg);
+        left: 0; right: 0;
+        z-index: 99;
+    }
+}
+
+/* auth page extras */
+.auth-topbar-link {
+    color: var(--muted-light);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+.auth-topbar-link:hover { color: var(--text-strong); }
+
+.auth-wrap--wide { max-width: 560px; }
+
+.auth-card-header { margin-bottom: 24px; }
+
+.auth-alt-link {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--muted-light);
+    font-size: 0.875rem;
+}
+.auth-alt-link a { color: var(--indigo-light); font-weight: 600; text-decoration: none; }
+.auth-alt-link a:hover { text-decoration: underline; }
+
+.button--full { width: 100%; justify-content: center; }
+
+.skill-suggestion.focused { background: var(--indigo-dim); color: var(--indigo-light); }
 
 /* utility classes used by landing page sections */
 .l-section--stats   { padding: 0 24px 80px; }
