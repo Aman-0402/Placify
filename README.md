@@ -1,4 +1,4 @@
-# CareerLink
+# Placify
 
 > Smart Campus Placement Management System built with Spring Boot, MySQL, JWT security, and a professional no-framework frontend.
 
@@ -10,30 +10,30 @@
 
 ## Overview
 
-CareerLink is a full-stack campus placement platform designed for final-year project demonstration as well as real institutional workflow modeling. It centralizes student profiles, recruiter job postings, company management, and application tracking into one secure web application.
+Placify is a full-stack campus placement platform designed for final-year project demonstration as well as real institutional workflow modeling. It centralizes student profiles, recruiter job postings, company management, and application tracking into one secure web application.
 
-The project is structured using a clean backend architecture:
+The backend is structured using a clean layered architecture:
 
-- `Controller -> Service -> Repository -> Entity`
+- `Controller → Service → Repository → Entity`
 - DTO-based API contracts
-- global exception handling
-- validation annotations
+- Global exception handling
+- Validation annotations
 - JWT authentication with role-based authorization
 - MySQL persistence using JPA and Hibernate
 
-The frontend is intentionally built with plain `HTML`, `CSS`, and `JavaScript` so the full request flow remains transparent and easy to evaluate academically.
+The frontend is intentionally built with plain `HTML`, `CSS`, and `JavaScript` so the full request flow remains transparent and easy to evaluate academically. The UI follows a modern dark SaaS design with a dedicated sidebar, topbar, and responsive layout — no CSS frameworks used.
 
 ## Why This Project
 
 Most college placement workflows still rely on spreadsheets, email threads, and messaging groups. That creates:
 
-- fragmented candidate data
-- repeated manual updates
-- poor visibility of active jobs
-- weak access control
-- no clean application tracking
+- Fragmented candidate data
+- Repeated manual updates
+- Poor visibility of active jobs
+- Weak access control
+- No clean application tracking
 
-CareerLink solves this by giving each stakeholder a dedicated role and workflow:
+Placify solves this by giving each stakeholder a dedicated role and workflow:
 
 - **Admin** manages the platform, companies, and oversight actions
 - **Recruiter** posts jobs and reviews applications
@@ -41,16 +41,16 @@ CareerLink solves this by giving each stakeholder a dedicated role and workflow:
 
 ## Core Features
 
-- Secure login and registration
+- Secure login and registration (separate, dedicated pages)
 - JWT token generation and request validation
 - BCrypt password encryption
 - Role-based access control for `ADMIN`, `RECRUITER`, and `STUDENT`
-- Student profile management
+- Student profile management with skill chip autocomplete on registration
 - Company creation and listing
 - Job posting, viewing, and filtering
-- Job application and status tracking
-- Professional frontend with dynamic API integration
-- Clean MySQL schema and professional demo seed data
+- Job application and status tracking with visual pipeline
+- Modern SaaS-style frontend with dark theme, sidebar navigation, and dynamic API integration
+- Clean MySQL schema with optional demo seed data
 
 ## Architecture
 
@@ -80,181 +80,149 @@ flowchart LR
 | Language | Java 21 |
 | Security | Spring Security, JWT, BCrypt |
 | ORM | Spring Data JPA, Hibernate |
-| Database | MySQL |
-| Frontend | HTML, CSS, JavaScript |
-| Build Tool | Maven |
+| Database | MySQL 8+ |
+| Frontend | HTML, CSS, JavaScript (ES Modules) |
+| Build Tool | Maven 3.9+ |
 | API Testing | Postman |
 
 ## Application Modules
 
 ### 1. Authentication
 
-- Register student and recruiter accounts
+- Register student and recruiter accounts (with skills chip autocomplete for students)
 - Login with JWT token generation
-- Fetch current authenticated user
+- Fetch current authenticated user (`/api/auth/me`)
+- Session stored in `localStorage`; flash messages via `sessionStorage`
 
 ### 2. Student Profile Management
 
-- View profile
-- Update skills, resume, and branch
-- View available jobs
+- View profile with avatar initials and skill tag chips
+- Update skills, resume link, and branch
+- View available and eligible jobs
+- Track application pipeline (Applied → In Review → Shortlisted → Selected)
 
 ### 3. Company Management
 
-- Add company
+- Add company (Admin only)
 - View company directory
-- Admin-controlled operations
+- Company logo initials displayed in cards
 
 ### 4. Job Management
 
-- Post jobs
-- View all jobs
-- Filter jobs by title, company, eligibility, and active status
+- Post and edit jobs (Recruiter / Admin)
+- View and filter all jobs by title, company, eligibility, and status
+- Delete job postings
 
 ### 5. Application Management
 
-- Apply for a job
-- View personal applications
-- Update application status
+- Apply for a job with one click
+- View personal applications with status pipeline visualization
+- Update application status (Recruiter / Admin)
 
 ## Frontend Pages
 
-The application frontend is served directly by Spring Boot from `src/main/resources/static`.
+The frontend is served directly by Spring Boot from `src/main/resources/static`.
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Login and registration |
-| `/jobs.html` | Public and authenticated job listings |
-| `/student-dashboard.html` | Student profile and actions |
-| `/recruiter-dashboard.html` | Recruiter/admin management workflow |
+| `/` | Landing page — hero, features, how it works, CTA |
+| `/login.html` | Dedicated login page |
+| `/register.html` | Dedicated registration page with skills chip autocomplete |
+| `/jobs.html` | Public and authenticated job listings with filters |
+| `/student-dashboard.html` | Student profile, stats, open roles, and application tracker |
+| `/recruiter-dashboard.html` | Recruiter / admin management workspace |
 | `/applications.html` | Student application tracking and recruiter status updates |
+
+### Frontend Design System
+
+- Dark theme — base color `#07101f`, surface `#0f1d32`, accent `#6366f1` (indigo), `#06b6d4` (cyan)
+- Left sidebar with SVG-icon navigation (role-based links)
+- Top navbar with notification bell and user avatar chip
+- Fully responsive — sidebar collapses to hamburger on mobile
+- Smooth hover lifts, transitions, and skeleton loaders
+- ES Module JS — `api.js` (shared API layer), `common.js` (layout/UI helpers), page-specific JS files
 
 ## Project Structure
 
 ```text
-CareerLink-Placement-Management-System/
-|-- .vscode/
-|   |-- settings.json
-|   `-- tasks.json
-|-- database/
-|   |-- 01_reset_careerlink_schema.sql
-|   |-- 03_seed_careerlink_data.sql
-|   `-- 04_login_credentials.md
-|-- docs/
-|   `-- CareerLink_Project_Report.md
-|-- src/
-|   |-- main/
-|   |   |-- java/
-|   |   |   `-- com/
-|   |   |       `-- careerlink/
-|   |   |           |-- config/
-|   |   |           |   |-- DataInitializer.java
-|   |   |           |   |-- PasswordConfig.java
-|   |   |           |   `-- SecurityConfig.java
-|   |   |           |-- controller/
-|   |   |           |   |-- ApplicationController.java
-|   |   |           |   |-- AuthController.java
-|   |   |           |   |-- CompanyController.java
-|   |   |           |   |-- JobController.java
-|   |   |           |   |-- StudentController.java
-|   |   |           |   `-- UserController.java
-|   |   |           |-- dto/
-|   |   |           |   |-- application/
-|   |   |           |   |   |-- ApplicationRequest.java
-|   |   |           |   |   |-- ApplicationResponse.java
-|   |   |           |   |   `-- ApplicationStatusUpdateRequest.java
-|   |   |           |   |-- auth/
-|   |   |           |   |   |-- AuthResponse.java
-|   |   |           |   |   |-- LoginRequest.java
-|   |   |           |   |   `-- RegisterRequest.java
-|   |   |           |   |-- common/
-|   |   |           |   |   |-- ApiResponse.java
-|   |   |           |   |   `-- ErrorResponse.java
-|   |   |           |   |-- company/
-|   |   |           |   |   |-- CompanyRequest.java
-|   |   |           |   |   `-- CompanyResponse.java
-|   |   |           |   |-- job/
-|   |   |           |   |   |-- JobRequest.java
-|   |   |           |   |   `-- JobResponse.java
-|   |   |           |   |-- student/
-|   |   |           |   |   |-- StudentProfileUpdateRequest.java
-|   |   |           |   |   |-- StudentRequest.java
-|   |   |           |   |   `-- StudentResponse.java
-|   |   |           |   `-- user/
-|   |   |           |       |-- UserRequest.java
-|   |   |           |       `-- UserResponse.java
-|   |   |           |-- entity/
-|   |   |           |   |-- Application.java
-|   |   |           |   |-- BaseEntity.java
-|   |   |           |   |-- Company.java
-|   |   |           |   |-- Job.java
-|   |   |           |   |-- Student.java
-|   |   |           |   `-- User.java
-|   |   |           |-- enums/
-|   |   |           |   |-- ApplicationStatus.java
-|   |   |           |   `-- Role.java
-|   |   |           |-- exception/
-|   |   |           |   |-- BadRequestException.java
-|   |   |           |   |-- GlobalExceptionHandler.java
-|   |   |           |   `-- ResourceNotFoundException.java
-|   |   |           |-- repository/
-|   |   |           |   |-- ApplicationRepository.java
-|   |   |           |   |-- CompanyRepository.java
-|   |   |           |   |-- JobRepository.java
-|   |   |           |   |-- StudentRepository.java
-|   |   |           |   `-- UserRepository.java
-|   |   |           |-- security/
-|   |   |           |   |-- CustomUserDetailsService.java
-|   |   |           |   |-- JwtAuthenticationFilter.java
-|   |   |           |   |-- JwtUtil.java
-|   |   |           |   |-- RestAccessDeniedHandler.java
-|   |   |           |   `-- RestAuthenticationEntryPoint.java
-|   |   |           |-- service/
-|   |   |           |   |-- impl/
-|   |   |           |   |   |-- ApplicationServiceImpl.java
-|   |   |           |   |   |-- AuthServiceImpl.java
-|   |   |           |   |   |-- CompanyServiceImpl.java
-|   |   |           |   |   |-- JobServiceImpl.java
-|   |   |           |   |   |-- StudentServiceImpl.java
-|   |   |           |   |   `-- UserServiceImpl.java
-|   |   |           |   |-- ApplicationService.java
-|   |   |           |   |-- AuthService.java
-|   |   |           |   |-- CompanyService.java
-|   |   |           |   |-- JobService.java
-|   |   |           |   |-- StudentService.java
-|   |   |           |   `-- UserService.java
-|   |   |           `-- CareerLinkApplication.java
-|   |   `-- resources/
-|   |       |-- application.properties
-|   |       `-- static/
-|   |           |-- applications.html
-|   |           |-- favicon.svg
-|   |           |-- index.html
-|   |           |-- jobs.html
-|   |           |-- recruiter-dashboard.html
-|   |           |-- student-dashboard.html
-|   |           |-- css/
-|   |           |   `-- styles.css
-|   |           `-- js/
-|   |               |-- api.js
-|   |               |-- applications-page.js
-|   |               |-- auth-page.js
-|   |               |-- common.js
-|   |               |-- jobs-page.js
-|   |               |-- recruiter-dashboard.js
-|   |               `-- student-dashboard.js
-|   `-- test/
-|       `-- java/
-|           `-- com/
-|               `-- careerlink/
-|-- .gitignore
-|-- CareerLink.postman_collection.json
-|-- DATABASE_EDIT_GUIDE.txt
-|-- docker-compose.yml
-|-- pom.xml
-|-- README.md
-|-- run-careerlink.ps1
-`-- stop-careerlink.ps1
+Placify/
+├── database/
+│   ├── 01_reset_careerlink_schema.sql
+│   ├── 03_seed_careerlink_data.sql
+│   └── 04_login_credentials.md
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/placify/
+│       │       ├── config/
+│       │       │   ├── DataInitializer.java
+│       │       │   ├── PasswordConfig.java
+│       │       │   └── SecurityConfig.java
+│       │       ├── controller/
+│       │       │   ├── ApplicationController.java
+│       │       │   ├── AuthController.java
+│       │       │   ├── CompanyController.java
+│       │       │   ├── JobController.java
+│       │       │   ├── StudentController.java
+│       │       │   └── UserController.java
+│       │       ├── dto/
+│       │       │   ├── application/
+│       │       │   ├── auth/
+│       │       │   ├── common/
+│       │       │   ├── company/
+│       │       │   ├── job/
+│       │       │   ├── student/
+│       │       │   └── user/
+│       │       ├── entity/
+│       │       │   ├── Application.java
+│       │       │   ├── BaseEntity.java
+│       │       │   ├── Company.java
+│       │       │   ├── Job.java
+│       │       │   ├── Student.java
+│       │       │   └── User.java
+│       │       ├── enums/
+│       │       │   ├── ApplicationStatus.java
+│       │       │   └── Role.java
+│       │       ├── exception/
+│       │       │   ├── BadRequestException.java
+│       │       │   ├── GlobalExceptionHandler.java
+│       │       │   └── ResourceNotFoundException.java
+│       │       ├── repository/
+│       │       ├── security/
+│       │       │   ├── CustomUserDetailsService.java
+│       │       │   ├── JwtAuthenticationFilter.java
+│       │       │   ├── JwtUtil.java
+│       │       │   ├── RestAccessDeniedHandler.java
+│       │       │   └── RestAuthenticationEntryPoint.java
+│       │       ├── service/
+│       │       │   └── impl/
+│       │       └── PlacifyApplication.java
+│       └── resources/
+│           ├── application.properties
+│           └── static/
+│               ├── css/
+│               │   └── styles.css
+│               ├── images/
+│               │   └── Logo.png
+│               ├── js/
+│               │   ├── api.js
+│               │   ├── applications-page.js
+│               │   ├── common.js
+│               │   ├── jobs-page.js
+│               │   ├── landing-page.js
+│               │   ├── login-page.js
+│               │   ├── recruiter-dashboard.js
+│               │   ├── register-page.js
+│               │   └── student-dashboard.js
+│               ├── applications.html
+│               ├── favicon.svg
+│               ├── index.html
+│               ├── jobs.html
+│               ├── login.html
+│               ├── register.html
+│               ├── recruiter-dashboard.html
+│               └── student-dashboard.html
+└── pom.xml
 ```
 
 ## Domain Model
@@ -313,39 +281,40 @@ CareerLink-Placement-Management-System/
 
 | Endpoint Area | Allowed Role |
 | --- | --- |
-| Company create/update/delete | `ADMIN` |
-| Job create/update/delete | `ADMIN`, `RECRUITER` |
+| Company create / update / delete | `ADMIN` |
+| Job create / update / delete | `ADMIN`, `RECRUITER` |
 | Apply for jobs | `STUDENT` |
 | View own applications | `STUDENT` |
 | View all applications / update status | `ADMIN`, `RECRUITER` |
 | View applications by student / delete application | `ADMIN` |
+| Static assets (`/`, `/*.html`, `/css/**`, `/js/**`, `/images/**`) | Public |
 
 ## Database Setup
 
 ### Application Configuration
 
-Main config file:
-
-- `src/main/resources/application.properties`
+Main config file: `src/main/resources/application.properties`
 
 The project supports environment-variable-based database configuration:
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/careerlink?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=${CAREERLINK_DB_USERNAME:root}
-spring.datasource.password=${CAREERLINK_DB_PASSWORD:YOUR_LOCAL_PASSWORD}
+spring.datasource.url=jdbc:mysql://localhost:3306/placify?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+spring.datasource.username=${PLACIFY_DB_USERNAME:root}
+spring.datasource.password=${PLACIFY_DB_PASSWORD:}
 ```
 
 For local execution, either:
 
-- set `CAREERLINK_DB_USERNAME` and `CAREERLINK_DB_PASSWORD`
-- or update `application.properties` with your own local MySQL credentials
+- Set environment variables `PLACIFY_DB_USERNAME` and `PLACIFY_DB_PASSWORD`
+- Or update `application.properties` directly with your local MySQL credentials
+
+The database (`placify`) is created automatically if it does not exist.
 
 ### Database Scripts
 
 | File | Purpose |
 | --- | --- |
-| `database/01_reset_careerlink_schema.sql` | Drop and recreate the CareerLink schema |
+| `database/01_reset_careerlink_schema.sql` | Drop and recreate the schema |
 | `database/03_seed_careerlink_data.sql` | Insert the approved professional demo dataset |
 | `database/04_login_credentials.md` | Presentation-ready login accounts |
 
@@ -353,9 +322,9 @@ For local execution, either:
 
 ### Prerequisites
 
-- Java 21
-- Maven
-- MySQL running locally
+- Java 21 (Temurin recommended)
+- Maven 3.9+
+- MySQL 8+ running locally
 
 ### 1. Clone the Repository
 
@@ -366,16 +335,18 @@ cd CareerLink-Placement-Management-System
 
 ### 2. Configure MySQL
 
-Make sure MySQL is running on:
+Make sure MySQL is running on `localhost:3306`.
 
-```text
-localhost:3306
-```
-
-If needed, create the database manually:
+The database is created automatically on first run. If you prefer to create it manually:
 
 ```sql
-CREATE DATABASE careerlink;
+CREATE DATABASE placify CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Update `application.properties` if your MySQL root password is not empty:
+
+```properties
+spring.datasource.password=your_password_here
 ```
 
 ### 3. Build the Project
@@ -402,33 +373,25 @@ mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081
 http://localhost:8080
 ```
 
+You will see the Placify landing page. Register a new account or use the demo credentials below.
+
 ## VS Code Run Tasks
 
-This project includes helper scripts and VS Code tasks:
+The project includes helper PowerShell scripts and VS Code tasks:
 
-- `run-careerlink.ps1`
-- `stop-careerlink.ps1`
-- `.vscode/tasks.json`
+- `run-careerlink.ps1` — starts the application
+- `stop-careerlink.ps1` — stops the running process
 
-Use:
+Use via VS Code:
 
-1. `Terminal -> Run Task`
-2. choose `Run CareerLink`
+1. `Terminal → Run Task`
+2. Choose `Run CareerLink`
 
-To stop:
-
-1. `Terminal -> Run Task`
-2. choose `Stop CareerLink`
-
-You can also stop the app with `Ctrl + C` in the active terminal.
+To stop: choose `Stop CareerLink`, or press `Ctrl + C` in the active terminal.
 
 ## Demo Accounts
 
-The seeded demo credentials are documented in:
-
-- `database/04_login_credentials.md`
-
-Quick summary:
+Seeded demo credentials are documented in `database/04_login_credentials.md`.
 
 | Role | Email | Password |
 | --- | --- | --- |
@@ -436,65 +399,68 @@ Quick summary:
 | Recruiter | `recruiter.microsoft@careerlink.com` | `Recruiter@CareerLink2026` |
 | Student | `ananya.gupta@careerlink.com` | `Student@CareerLink2026` |
 
+> Seed data is disabled by default. Set `PLACIFY_SEED_ENABLED=true` (or update `application.properties`) to load demo data on startup.
+
 ## Postman Collection
 
-Postman collection file:
-
-- `CareerLink.postman_collection.json`
+Collection file: `CareerLink.postman_collection.json`
 
 Suggested demo order:
 
-1. login and capture JWT token
-2. list companies
-3. create or view jobs
-4. log in as student
-5. apply for a job
-6. track application status
+1. Login and capture JWT token
+2. List companies
+3. Create or view jobs
+4. Log in as student
+5. Apply for a job
+6. Track application status
 
 ## Project Assets
 
 | Asset | Path |
 | --- | --- |
-| Final report draft | `docs/CareerLink_Project_Report.md` |
-| Database edit guide | `DATABASE_EDIT_GUIDE.txt` |
-| Schema reset script | `database/01_reset_careerlink_schema.sql` |
+| Database schema reset | `database/01_reset_careerlink_schema.sql` |
 | Seed SQL | `database/03_seed_careerlink_data.sql` |
 | Login credentials | `database/04_login_credentials.md` |
+| Postman collection | `CareerLink.postman_collection.json` |
 
 ## Verification Status
 
 Verified during development:
 
-- project compile success
-- successful Spring Boot startup against MySQL
-- working JWT login for all three roles
-- protected routes enforcing role restrictions
-- frontend pages returning successful responses
-- student workflow: login -> view jobs -> apply -> track application
-- admin workflow: manage companies
-- recruiter workflow: manage jobs and applications
+- Project compiles successfully
+- Spring Boot starts against MySQL (`placify` database)
+- JWT login works for all three roles
+- Protected routes enforce role restrictions
+- Static assets served correctly (logo, CSS, JS)
+- Landing page with hero, features, how-it-works, and CTA sections
+- Separate login and register pages with skills chip autocomplete
+- Student workflow: register → view jobs → apply → track pipeline
+- Recruiter workflow: post job → manage listings → review applicants
+- Admin workflow: manage companies → oversee jobs and applications
+- Responsive layout — sidebar collapses on mobile
 
 ## Future Enhancements
 
-- interview scheduling
-- email notifications
-- resume upload and parsing
-- analytics dashboard
-- pagination and advanced filtering
-- cloud deployment and CI/CD
-- AI-assisted job recommendation
+- Interview scheduling and calendar integration
+- Email notifications for status changes
+- Resume file upload and parsing
+- Analytics dashboard with placement statistics
+- Pagination and advanced filtering
+- AI-assisted job recommendations based on student skills
+- Cloud deployment and CI/CD pipeline
+- Dark / light theme toggle
 
 ## Repository Notes
 
 This repository is intended to present the project professionally for:
 
-- final-year major project evaluation
+- Final-year major project evaluation
 - GitHub portfolio visibility
-- technical demonstration of secure full-stack development
+- Technical demonstration of secure full-stack development
 
-If you want to improve the repo further, the best next additions are:
+Recommended next additions to strengthen the repo further:
 
-- screenshots in the README
-- a short project demo video link
-- a LICENSE file
-- deployment screenshots or architecture images
+- Screenshots of the landing page and dashboards in this README
+- A short project demo video link
+- A `LICENSE` file
+- Deployment screenshots or a live demo link
