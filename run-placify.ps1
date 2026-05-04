@@ -41,13 +41,13 @@ $existingListener = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAc
     Select-Object -First 1
 
 if ($existingListener) {
-    throw "Port $Port is already in use by PID $($existingListener.OwningProcess). Stop it first or run .\run-careerlink.ps1 -Port 8081"
+    throw "Port $Port is already in use by PID $($existingListener.OwningProcess). Stop it first or run .\run-placify.ps1 -Port 8081"
 }
 
 $mysqlService = Get-MySqlService
 
 if ($null -eq $mysqlService) {
-    Write-Warning "No Windows MySQL service was found automatically. Ensure MySQL is already running before starting CareerLink."
+    Write-Warning "No Windows MySQL service was found automatically. Ensure MySQL is already running before starting Placify."
 } else {
     if ($mysqlService.Status -ne "Running") {
         Write-Step "Starting MySQL service: $($mysqlService.Name)"
@@ -64,7 +64,7 @@ if ($null -eq $mysqlService) {
 Write-Step "Preparing Maven"
 $mavenRepository = Get-MavenRepositoryPath
 
-Write-Step "Starting CareerLink on http://localhost:$Port"
+Write-Step "Starting Placify on http://localhost:$Port"
 $mavenArguments = @("-Dmaven.repo.local=$mavenRepository", "spring-boot:run")
 
 if ($Port -ne 8080) {

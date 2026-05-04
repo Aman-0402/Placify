@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS careerlink;
-CREATE DATABASE careerlink CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE careerlink;
+DROP DATABASE IF EXISTS placify;
+CREATE DATABASE placify CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE placify;
 
 CREATE TABLE users (
     id BIGINT NOT NULL AUTO_INCREMENT,

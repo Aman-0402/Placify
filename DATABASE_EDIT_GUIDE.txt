@@ -1,14 +1,14 @@
-CareerLink Database Edit Guide
+Placify Database Edit Guide
 
 Database connection
 
 Use PowerShell:
 
-mysql -uroot -p"K04"
+mysql -uroot -p"${PLACIFY_DB_PASSWORD}"
 
 Then inside MySQL:
 
-USE careerlink;
+USE placify;
 SHOW TABLES;
 
 
@@ -16,7 +16,7 @@ UI to database map
 
 1. Login / Register page
 - Main frontend file:
-  C:\Users\LENOVO\Desktop\Major_Project\src\main\resources\static\index.html
+  src/main/resources/static/index.html
 - Main tables:
   users
   students
@@ -30,7 +30,7 @@ UI to database map
 
 2. Student dashboard
 - Main frontend file:
-  C:\Users\LENOVO\Desktop\Major_Project\src\main\resources\static\student-dashboard.html
+  src/main/resources/static/student-dashboard.html
 - Main tables:
   users
   students
@@ -40,7 +40,7 @@ UI to database map
 
 3. Recruiter dashboard
 - Main frontend file:
-  C:\Users\LENOVO\Desktop\Major_Project\src\main\resources\static\recruiter-dashboard.html
+  src/main/resources/static/recruiter-dashboard.html
 - Main tables:
   companies
   jobs
@@ -49,7 +49,7 @@ UI to database map
 
 4. Jobs page
 - Main frontend file:
-  C:\Users\LENOVO\Desktop\Major_Project\src\main\resources\static\jobs.html
+  src/main/resources/static/jobs.html
 - Main tables:
   jobs
   companies
@@ -62,7 +62,7 @@ UI to database map
 
 5. Applications page
 - Main frontend file:
-  C:\Users\LENOVO\Desktop\Major_Project\src\main\resources\static\applications.html
+  src/main/resources/static/applications.html
 - Main tables:
   applications
   jobs
@@ -145,7 +145,7 @@ WHERE id = 1;
 
 Change user email:
 UPDATE users
-SET email = 'student@careerlink.com'
+SET email = 'student@placify.com'
 WHERE id = 3;
 
 Change application status:

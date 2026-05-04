@@ -1,4 +1,4 @@
-# CareerLink Presentation Login Accounts
+# Placify Presentation Login Accounts
 
 Use these accounts to demonstrate the system manually.
 
@@ -6,35 +6,35 @@ Use these accounts to demonstrate the system manually.
 
 | Name | Email | Password |
 | --- | --- | --- |
-| Priya Sharma | admin@careerlink.com | Admin@CareerLink2026 |
+| Priya Sharma | admin@placify.com | Admin@Placify2026 |
 
 ## Recruiters
 
-Password for all recruiter accounts: `Recruiter@CareerLink2026`
+Password for all recruiter accounts: `Recruiter@Placify2026`
 
 | Name | Email | Company |
 | --- | --- | --- |
-| Aarav Mehta | recruiter.microsoft@careerlink.com | Microsoft |
-| Neha Kulkarni | recruiter.amazon@careerlink.com | Amazon |
-| Rishi Bhatia | recruiter.deloitte@careerlink.com | Deloitte |
-| Kavya Reddy | recruiter.infosys@careerlink.com | Infosys |
-| Arjun Nair | recruiter.accenture@careerlink.com | Accenture |
-| Siddharth Jain | recruiter.tcs@careerlink.com | Tata Consultancy Services |
+| Aarav Mehta | recruiter.microsoft@placify.com | Microsoft |
+| Neha Kulkarni | recruiter.amazon@placify.com | Amazon |
+| Rishi Bhatia | recruiter.deloitte@placify.com | Deloitte |
+| Kavya Reddy | recruiter.infosys@placify.com | Infosys |
+| Arjun Nair | recruiter.accenture@placify.com | Accenture |
+| Siddharth Jain | recruiter.tcs@placify.com | Tata Consultancy Services |
 
 ## Students
 
-Password for all student accounts: `Student@CareerLink2026`
+Password for all student accounts: `Student@Placify2026`
 
 | Name | Email | Branch |
 | --- | --- | --- |
-| Ananya Gupta | ananya.gupta@careerlink.com | Computer Science Engineering |
-| Rohan Verma | rohan.verma@careerlink.com | Information Technology |
-| Sneha Iyer | sneha.iyer@careerlink.com | Artificial Intelligence and Machine Learning |
-| Aditya Rao | aditya.rao@careerlink.com | Electronics and Communication Engineering |
-| Meera Nair | meera.nair@careerlink.com | Computer Science Engineering |
-| Kunal Singh | kunal.singh@careerlink.com | Data Science |
-| Ishita Kapoor | ishita.kapoor@careerlink.com | Computer Engineering |
-| Vivek Menon | vivek.menon@careerlink.com | Information Technology |
+| Ananya Gupta | ananya.gupta@placify.com | Computer Science Engineering |
+| Rohan Verma | rohan.verma@placify.com | Information Technology |
+| Sneha Iyer | sneha.iyer@placify.com | Artificial Intelligence and Machine Learning |
+| Aditya Rao | aditya.rao@placify.com | Electronics and Communication Engineering |
+| Meera Nair | meera.nair@placify.com | Computer Science Engineering |
+| Kunal Singh | kunal.singh@placify.com | Data Science |
+| Ishita Kapoor | ishita.kapoor@placify.com | Computer Engineering |
+| Vivek Menon | vivek.menon@placify.com | Information Technology |
 
 ## Presentation Flow Suggestions
 

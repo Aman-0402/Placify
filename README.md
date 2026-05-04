@@ -147,8 +147,8 @@ The frontend is served directly by Spring Boot from `src/main/resources/static`.
 ```text
 Placify/
 ├── database/
-│   ├── 01_reset_careerlink_schema.sql
-│   ├── 03_seed_careerlink_data.sql
+│   ├── 01_reset_placify_schema.sql
+│   ├── 03_seed_placify_data.sql
 │   └── 04_login_credentials.md
 ├── src/
 │   └── main/
@@ -314,8 +314,8 @@ The database (`placify`) is created automatically if it does not exist.
 
 | File | Purpose |
 | --- | --- |
-| `database/01_reset_careerlink_schema.sql` | Drop and recreate the schema |
-| `database/03_seed_careerlink_data.sql` | Insert the approved professional demo dataset |
+| `database/01_reset_placify_schema.sql` | Drop and recreate the schema |
+| `database/03_seed_placify_data.sql` | Insert the approved professional demo dataset |
 | `database/04_login_credentials.md` | Presentation-ready login accounts |
 
 ## Quick Start
@@ -329,8 +329,8 @@ The database (`placify`) is created automatically if it does not exist.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Kumar-Aditya-Singh/CareerLink-Placement-Management-System.git
-cd CareerLink-Placement-Management-System
+git clone https://github.com/Kumar-Aditya-Singh/Placify.git
+cd Placify
 ```
 
 ### 2. Configure MySQL
@@ -379,15 +379,15 @@ You will see the Placify landing page. Register a new account or use the demo cr
 
 The project includes helper PowerShell scripts and VS Code tasks:
 
-- `run-careerlink.ps1` — starts the application
-- `stop-careerlink.ps1` — stops the running process
+- `run-placify.ps1` — starts the application
+- `stop-placify.ps1` — stops the running process
 
 Use via VS Code:
 
 1. `Terminal → Run Task`
-2. Choose `Run CareerLink`
+2. Choose `Run Placify`
 
-To stop: choose `Stop CareerLink`, or press `Ctrl + C` in the active terminal.
+To stop: choose `Stop Placify`, or press `Ctrl + C` in the active terminal.
 
 ## Demo Accounts
 
@@ -395,15 +395,15 @@ Seeded demo credentials are documented in `database/04_login_credentials.md`.
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Admin | `admin@careerlink.com` | `Admin@CareerLink2026` |
-| Recruiter | `recruiter.microsoft@careerlink.com` | `Recruiter@CareerLink2026` |
-| Student | `ananya.gupta@careerlink.com` | `Student@CareerLink2026` |
+| Admin | `admin@placify.com` | `Admin@Placify2026` |
+| Recruiter | `recruiter.microsoft@placify.com` | `Recruiter@Placify2026` |
+| Student | `ananya.gupta@placify.com` | `Student@Placify2026` |
 
 > Seed data is disabled by default. Set `PLACIFY_SEED_ENABLED=true` (or update `application.properties`) to load demo data on startup.
 
 ## Postman Collection
 
-Collection file: `CareerLink.postman_collection.json`
+Collection file: `Placify.postman_collection.json`
 
 Suggested demo order:
 
@@ -418,10 +418,10 @@ Suggested demo order:
 
 | Asset | Path |
 | --- | --- |
-| Database schema reset | `database/01_reset_careerlink_schema.sql` |
-| Seed SQL | `database/03_seed_careerlink_data.sql` |
+| Database schema reset | `database/01_reset_placify_schema.sql` |
+| Seed SQL | `database/03_seed_placify_data.sql` |
 | Login credentials | `database/04_login_credentials.md` |
-| Postman collection | `CareerLink.postman_collection.json` |
+| Postman collection | `Placify.postman_collection.json` |
 
 ## Verification Status
 

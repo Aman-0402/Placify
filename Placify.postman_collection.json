@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "CareerLink API Collection",
+    "name": "Placify API Collection",
     "_postman_id": "7b6d58cb-1d89-4a4b-8fd0-7d2d9084b1f3",
-    "description": "Sample API requests for CareerLink backend verification.",
+    "description": "Sample API requests for Placify backend verification.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -78,7 +78,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@careerlink.com\",\n  \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"admin@placify.com\",\n  \"password\": \"Admin@Placify2026\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -105,7 +105,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"recruiter@careerlink.com\",\n  \"password\": \"recruiter123\"\n}"
+              "raw": "{\n  \"email\": \"recruiter.microsoft@placify.com\",\n  \"password\": \"Recruiter@Placify2026\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -132,7 +132,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"student@careerlink.com\",\n  \"password\": \"student123\"\n}"
+              "raw": "{\n  \"email\": \"ananya.gupta@placify.com\",\n  \"password\": \"Student@Placify2026\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",

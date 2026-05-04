@@ -1,4 +1,4 @@
-USE careerlink;
+USE placify;
 
 START TRANSACTION;
 
@@ -11,21 +11,21 @@ TRUNCATE TABLE users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO users (id, created_at, updated_at, name, email, password, role, enabled) VALUES
-(1, NOW(), NOW(), 'Priya Sharma', 'admin@careerlink.com', '$2a$10$kFzlglcCQaIO6JZ1KRgphOXd5OqSGnniE1IcuamrDkvLdOanzhjRe', 'ADMIN', b'1'),
-(2, NOW(), NOW(), 'Aarav Mehta', 'recruiter.microsoft@careerlink.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
-(3, NOW(), NOW(), 'Neha Kulkarni', 'recruiter.amazon@careerlink.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
-(4, NOW(), NOW(), 'Rishi Bhatia', 'recruiter.deloitte@careerlink.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
-(5, NOW(), NOW(), 'Kavya Reddy', 'recruiter.infosys@careerlink.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
-(6, NOW(), NOW(), 'Arjun Nair', 'recruiter.accenture@careerlink.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
-(7, NOW(), NOW(), 'Siddharth Jain', 'recruiter.tcs@careerlink.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
-(8, NOW(), NOW(), 'Ananya Gupta', 'ananya.gupta@careerlink.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
-(9, NOW(), NOW(), 'Rohan Verma', 'rohan.verma@careerlink.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
-(10, NOW(), NOW(), 'Sneha Iyer', 'sneha.iyer@careerlink.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
-(11, NOW(), NOW(), 'Aditya Rao', 'aditya.rao@careerlink.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
-(12, NOW(), NOW(), 'Meera Nair', 'meera.nair@careerlink.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
-(13, NOW(), NOW(), 'Kunal Singh', 'kunal.singh@careerlink.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
-(14, NOW(), NOW(), 'Ishita Kapoor', 'ishita.kapoor@careerlink.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
-(15, NOW(), NOW(), 'Vivek Menon', 'vivek.menon@careerlink.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1');
+(1, NOW(), NOW(), 'Priya Sharma', 'admin@placify.com', '$2a$10$kFzlglcCQaIO6JZ1KRgphOXd5OqSGnniE1IcuamrDkvLdOanzhjRe', 'ADMIN', b'1'),
+(2, NOW(), NOW(), 'Aarav Mehta', 'recruiter.microsoft@placify.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
+(3, NOW(), NOW(), 'Neha Kulkarni', 'recruiter.amazon@placify.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
+(4, NOW(), NOW(), 'Rishi Bhatia', 'recruiter.deloitte@placify.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
+(5, NOW(), NOW(), 'Kavya Reddy', 'recruiter.infosys@placify.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
+(6, NOW(), NOW(), 'Arjun Nair', 'recruiter.accenture@placify.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
+(7, NOW(), NOW(), 'Siddharth Jain', 'recruiter.tcs@placify.com', '$2a$10$BzjOSxWamSKqjeMZe1YRquNJG//b6I9zbQyI3N062Ore6eil3yItW', 'RECRUITER', b'1'),
+(8, NOW(), NOW(), 'Ananya Gupta', 'ananya.gupta@placify.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
+(9, NOW(), NOW(), 'Rohan Verma', 'rohan.verma@placify.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
+(10, NOW(), NOW(), 'Sneha Iyer', 'sneha.iyer@placify.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
+(11, NOW(), NOW(), 'Aditya Rao', 'aditya.rao@placify.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
+(12, NOW(), NOW(), 'Meera Nair', 'meera.nair@placify.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
+(13, NOW(), NOW(), 'Kunal Singh', 'kunal.singh@placify.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
+(14, NOW(), NOW(), 'Ishita Kapoor', 'ishita.kapoor@placify.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1'),
+(15, NOW(), NOW(), 'Vivek Menon', 'vivek.menon@placify.com', '$2a$10$z9qw8tPPzQBhkuFjApWLUeiTjKWykUyqqWHaoEhwyTXuEJZaGiiO2', 'STUDENT', b'1');
 
 INSERT INTO students (id, created_at, updated_at, branch, resume, skills, user_id) VALUES
 (1, NOW(), NOW(), 'Computer Science Engineering', 'ananya-gupta-resume.pdf', 'Java, Spring Boot, MySQL, REST APIs, DSA', 8),
