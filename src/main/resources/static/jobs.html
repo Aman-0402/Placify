@@ -22,7 +22,7 @@
         <p class="sidebar-section-label">Navigation</p>
         <nav id="siteNav"></nav>
         <div class="sidebar-footer">
-            <div id="sidebarUser"></div>
+            <p class="sidebar-version">Placify &bull; v1.0</p>
         </div>
     </aside>
 
@@ -36,6 +36,16 @@
                 </svg>
             </button>
             <span class="topbar-title">Job Listings</span>
+            <div class="topbar-right">
+                <button class="topbar-notify" type="button" aria-label="Notifications">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                        <path d="M8 1.5a4.5 4.5 0 0 1 4.5 4.5c0 2.5.8 3.8 1.5 4.5H2c.7-.7 1.5-2 1.5-4.5A4.5 4.5 0 0 1 8 1.5z"/>
+                        <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/>
+                    </svg>
+                    <span class="topbar-notify-dot"></span>
+                </button>
+                <div id="headerActions"></div>
+            </div>
         </header>
 
         <main class="page-content">
@@ -86,7 +96,7 @@
                                 <h2>Available roles</h2>
                                 <p class="helper-text" id="jobsMeta">Loading jobs...</p>
                             </div>
-                            <a class="button secondary" href="/login.html">Sign In</a>
+                            <div id="jobsToolbarAction"></div>
                         </div>
                         <div class="cards-grid" id="jobsGrid"></div>
                     </section>

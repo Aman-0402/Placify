@@ -178,78 +178,16 @@ button, input, textarea, select { font: inherit; }
 }
 
 .sidebar-footer {
-    padding: 12px 10px;
+    padding: 14px 10px;
     border-top: 1px solid var(--border);
     flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
 }
 
-/* Sidebar user card */
-.sidebar-user-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-}
-.sidebar-user-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--cyan));
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    letter-spacing: 0.02em;
-}
-.sidebar-user-info {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    min-width: 0;
-}
-.sidebar-user-name {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-strong);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.sidebar-user-role {
+.sidebar-version {
+    padding: 4px 12px;
     font-size: 0.7rem;
     color: var(--muted);
-    text-transform: capitalize;
-}
-.sidebar-logout-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted-light);
-    font-size: 0.82rem;
     font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-    text-decoration: none;
-}
-.sidebar-logout-btn:hover {
-    background: rgba(239,68,68,0.08);
-    border-color: rgba(239,68,68,0.3);
-    color: #f87171;
 }
 
 /* ── App Main ────────────────────────────────────────────────────── */

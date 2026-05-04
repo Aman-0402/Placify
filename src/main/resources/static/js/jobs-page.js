@@ -46,6 +46,7 @@ async function init() {
     initializeLayout("jobs", state.user);
     consumeFlashInto(messageElement);
     clearPendingJob();
+    renderToolbarAction();
     bindEvents();
     jobsMeta.textContent = "Loading roles...";
     renderLoadingCards(jobsGrid, 6);
@@ -83,6 +84,18 @@ async function loadJobs() {
         renderJobs();
     } catch (error) {
         showMessage(messageElement, error.message, "error");
+    }
+}
+
+function renderToolbarAction() {
+    const el = document.getElementById("jobsToolbarAction");
+    if (!el) return;
+    if (!state.user) {
+        el.innerHTML = `<a class="button secondary" href="/login.html">Sign In</a>`;
+    } else if (state.user.role === "STUDENT") {
+        el.innerHTML = `<a class="button secondary" href="/student-dashboard.html">My Dashboard</a>`;
+    } else {
+        el.innerHTML = `<a class="button secondary" href="${dashboardPathForRole(state.user.role)}">Dashboard</a>`;
     }
 }
 

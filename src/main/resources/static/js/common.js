@@ -13,7 +13,6 @@ export function initializeLayout(activePage, user) {
     document.body.dataset.page = activePage;
     renderNavigation(activePage, user);
     renderHeaderActions(user);
-    renderSidebarUser(user);
     ensurePageLoader();
 }
 
