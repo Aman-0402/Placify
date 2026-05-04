@@ -1192,7 +1192,8 @@ input:focus, textarea:focus, select:focus {
     height: 60px;
     display: flex;
     align-items: center;
-    padding: 0 24px;
+    justify-content: space-between;
+    padding: 0 32px;
     border-bottom: 1px solid var(--border);
     background: rgba(7,16,31,0.88);
     -webkit-backdrop-filter: blur(16px);
@@ -1426,13 +1427,23 @@ input:focus, textarea:focus, select:focus {
 
 /* auth page extras */
 .auth-topbar-link {
-    color: var(--muted-light);
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-strong);
     font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
-    transition: color 0.15s;
+    background: transparent;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
 }
-.auth-topbar-link:hover { color: var(--text-strong); }
+.auth-topbar-link:hover {
+    background: var(--surface-2);
+    border-color: var(--accent);
+}
 
 .auth-wrap--wide { max-width: 560px; }
 
