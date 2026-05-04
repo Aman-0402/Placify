@@ -57,6 +57,8 @@ async function init() {
 
 function initRoleTabs() {
     const tabs = document.querySelectorAll(".auth-role-tab");
+    const recruiterInfo = document.getElementById("recruiterInfo");
+    const subtitle = document.querySelector(".auth-subtitle");
     tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
             tabs.forEach((t) => t.classList.remove("active"));
@@ -65,6 +67,10 @@ function initRoleTabs() {
             roleInput.value = role;
             const isStudent = role === "STUDENT";
             studentFields.classList.toggle("hidden", !isStudent);
+            recruiterInfo.classList.toggle("hidden", isStudent);
+            subtitle.textContent = isStudent
+                ? "Free for students, forever"
+                : "Post jobs and manage your hiring pipeline";
             ["registerBranch", "registerResume", "registerSkills"].forEach((id) => {
                 document.getElementById(id).required = isStudent;
             });

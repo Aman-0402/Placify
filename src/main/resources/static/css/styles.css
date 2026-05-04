@@ -1447,6 +1447,46 @@ input:focus, textarea:focus, select:focus {
 
 .auth-wrap--wide { max-width: 560px; }
 
+/* Recruiter info panel */
+.recruiter-info-box {
+    display: flex;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 12px;
+    background: rgba(99,102,241,0.07);
+}
+.recruiter-info-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--accent);
+}
+.recruiter-info-content { display: flex; flex-direction: column; gap: 8px; }
+.recruiter-info-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-strong);
+}
+.recruiter-info-list {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.recruiter-info-list li {
+    font-size: 0.8rem;
+    color: var(--muted-light);
+    line-height: 1.5;
+}
+.recruiter-info-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+}
+
 .auth-card-header { margin-bottom: 24px; }
 
 .auth-alt-link {
