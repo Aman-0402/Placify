@@ -30,12 +30,9 @@ const state = {
 
 const messageElement = document.getElementById("pageMessage");
 const accountSnapshot = document.getElementById("accountSnapshot");
-const profileSummary = document.getElementById("profileSummary");
 const availableJobsGrid = document.getElementById("availableJobsGrid");
 const recentApplicationsGrid = document.getElementById("recentApplicationsGrid");
 const statsGrid = document.getElementById("statsGrid");
-const profileForm = document.getElementById("profileForm");
-const profileButton = document.getElementById("profileButton");
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -54,7 +51,6 @@ async function init() {
     bindEvents();
 
     renderLoadingSummary(accountSnapshot, 3);
-    renderLoadingSummary(profileSummary, 4);
     renderLoadingCards(availableJobsGrid, 3);
     renderLoadingCards(recentApplicationsGrid, 3);
 
@@ -67,8 +63,8 @@ async function init() {
 }
 
 function bindEvents() {
-    profileForm.addEventListener("submit", updateProfile);
     availableJobsGrid.addEventListener("click", handleJobActions);
+    initProfileDropdown();
 }
 
 async function loadDashboard() {
@@ -84,7 +80,7 @@ async function loadDashboard() {
         state.applications = applicationsPayload.data || [];
 
         renderAccountSnapshot();
-        renderProfile();
+        renderProfileDropdown();
         renderJobs();
         renderApplications();
         renderDashboardStats();
@@ -136,21 +132,51 @@ function renderAccountSnapshot() {
     `;
 }
 
-function renderProfile() {
-    if (!state.profile) {
-        profileSummary.innerHTML = emptyState("Student profile not found.");
-        return;
-    }
+function initProfileDropdown() {
+    const headerActions = document.getElementById("headerActions");
+    const dropdown = document.getElementById("profileDropdown");
 
-    document.getElementById("profileBranch").value = state.profile.branch || "";
-    document.getElementById("profileSkills").value = state.profile.skills || "";
-    document.getElementById("profileResume").value = state.profile.resume || "";
+    headerActions.addEventListener("click", (e) => {
+        if (e.target.closest("#logoutButton")) return;
+        dropdown.classList.toggle("open");
+    });
 
-    const initials = state.profile.name
+    document.addEventListener("click", (e) => {
+        if (!document.getElementById("profileMenu").contains(e.target)) {
+            dropdown.classList.remove("open");
+        }
+    });
+
+    document.getElementById("pdEditBtn").addEventListener("click", () => {
+        document.getElementById("pdView").classList.add("hidden");
+        document.getElementById("pdForm").classList.remove("hidden");
+    });
+
+    document.getElementById("pdCancelBtn").addEventListener("click", () => {
+        document.getElementById("pdForm").classList.add("hidden");
+        document.getElementById("pdView").classList.remove("hidden");
+        hideMessage(document.getElementById("pdMessage"));
+    });
+
+    document.getElementById("pdForm").addEventListener("submit", updateProfile);
+}
+
+function renderProfileDropdown() {
+    if (!state.profile) return;
+
+    const initials = state.user.name
         .split(" ")
         .slice(0, 2)
         .map((p) => p.charAt(0))
         .join("");
+
+    document.getElementById("pdAvatar").textContent = initials;
+    document.getElementById("pdName").textContent = state.user.name;
+    document.getElementById("pdEmail").textContent = state.user.email;
+    document.getElementById("pdBranch").textContent = state.profile.branch || "Not set";
+    document.getElementById("pdResume").innerHTML = state.profile.resume
+        ? `<a href="${escapeHtml(state.profile.resume)}" target="_blank" rel="noopener">View Resume &rarr;</a>`
+        : "Not uploaded";
 
     const skillTags = (state.profile.skills || "")
         .split(",")
@@ -158,36 +184,11 @@ function renderProfile() {
         .filter(Boolean)
         .map((s) => `<span class="skill-tag">${escapeHtml(s)}</span>`)
         .join("");
+    document.getElementById("pdSkills").innerHTML = skillTags || `<span class="pd-value">No skills added</span>`;
 
-    profileSummary.innerHTML = `
-        <div class="profile-avatar-row">
-            <div class="profile-avatar">${escapeHtml(initials)}</div>
-            <div>
-                <div class="profile-card-name">${escapeHtml(state.profile.name)}</div>
-                <div class="profile-card-sub">${escapeHtml(state.user.email)}</div>
-            </div>
-        </div>
-        <div class="profile-meta-row">
-            <div class="profile-meta-item">
-                <span class="profile-meta-label">Branch</span>
-                <span class="profile-meta-value">${escapeHtml(state.profile.branch || "Not set")}</span>
-            </div>
-            <div class="profile-meta-item">
-                <span class="profile-meta-label">Resume</span>
-                <span class="profile-meta-value">
-                    ${state.profile.resume
-                        ? `<a href="${escapeHtml(state.profile.resume)}" target="_blank" rel="noopener">View Resume &rarr;</a>`
-                        : "Not uploaded"}
-                </span>
-            </div>
-            <div class="profile-meta-item">
-                <span class="profile-meta-label">Skills</span>
-                ${skillTags
-                    ? `<div class="skill-tags">${skillTags}</div>`
-                    : `<span class="profile-meta-value">No skills added</span>`}
-            </div>
-        </div>
-    `;
+    document.getElementById("pdBranchInput").value = state.profile.branch || "";
+    document.getElementById("pdSkillsInput").value = state.profile.skills || "";
+    document.getElementById("pdResumeInput").value = state.profile.resume || "";
 }
 
 function renderJobs() {
@@ -334,28 +335,33 @@ function renderDashboardStats() {
 
 async function updateProfile(event) {
     event.preventDefault();
-    hideMessage(messageElement);
-    setButtonBusy(profileButton, true, "Saving...");
+    const pdMessage = document.getElementById("pdMessage");
+    const saveBtn = document.getElementById("pdSaveBtn");
+    hideMessage(pdMessage);
+    setButtonBusy(saveBtn, true, "Saving...");
 
     try {
         const payload = await apiRequest("/api/students/me", {
             method: "PUT",
             body: {
-                branch: document.getElementById("profileBranch").value.trim(),
-                skills: document.getElementById("profileSkills").value.trim(),
-                resume: document.getElementById("profileResume").value.trim()
+                branch: document.getElementById("pdBranchInput").value.trim(),
+                skills: document.getElementById("pdSkillsInput").value.trim(),
+                resume: document.getElementById("pdResumeInput").value.trim()
             }
         });
 
         state.profile = payload.data;
-        renderProfile();
+        renderProfileDropdown();
         renderDashboardStats();
         renderAccountSnapshot();
+
+        document.getElementById("pdForm").classList.add("hidden");
+        document.getElementById("pdView").classList.remove("hidden");
         showMessage(messageElement, "Profile updated successfully.", "success");
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        showMessage(pdMessage, error.message, "error");
     } finally {
-        setButtonBusy(profileButton, false);
+        setButtonBusy(saveBtn, false);
     }
 }
 

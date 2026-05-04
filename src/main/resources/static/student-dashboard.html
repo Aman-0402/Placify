@@ -26,7 +26,7 @@
         <nav id="siteNav"></nav>
 
         <div class="sidebar-footer">
-            <p class="sidebar-version">Placify &bull; v1.0</p>
+            <div id="sidebarUser"></div>
         </div>
     </aside>
 
@@ -50,7 +50,60 @@
                     </svg>
                     <span class="topbar-notify-dot"></span>
                 </button>
-                <div id="headerActions"></div>
+
+                <!-- Profile menu -->
+                <div class="profile-menu" id="profileMenu">
+                    <div id="headerActions"></div>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="pd-header">
+                            <div class="pd-avatar" id="pdAvatar">?</div>
+                            <div>
+                                <div class="pd-name" id="pdName"></div>
+                                <div class="pd-email" id="pdEmail"></div>
+                            </div>
+                        </div>
+                        <div class="pd-divider"></div>
+
+                        <!-- View mode -->
+                        <div id="pdView">
+                            <div class="pd-row">
+                                <span class="pd-label">Branch</span>
+                                <span class="pd-value" id="pdBranch">—</span>
+                            </div>
+                            <div class="pd-row">
+                                <span class="pd-label">Resume</span>
+                                <span class="pd-value" id="pdResume">—</span>
+                            </div>
+                            <div class="pd-row pd-row--skills">
+                                <span class="pd-label">Skills</span>
+                                <div id="pdSkills"></div>
+                            </div>
+                            <button class="button secondary sm button--full" id="pdEditBtn" type="button">Edit Profile</button>
+                        </div>
+
+                        <!-- Edit mode -->
+                        <form id="pdForm" class="form-stack hidden" novalidate>
+                            <label class="field">
+                                <span>Branch / Department</span>
+                                <input id="pdBranchInput" type="text" placeholder="e.g. Computer Science" required>
+                            </label>
+                            <label class="field">
+                                <span>Skills <small>(comma-separated)</small></span>
+                                <textarea id="pdSkillsInput" rows="3" placeholder="Java, Spring Boot, MySQL" required></textarea>
+                            </label>
+                            <label class="field">
+                                <span>Resume Link</span>
+                                <input id="pdResumeInput" type="url" placeholder="https://drive.google.com/..." required>
+                            </label>
+                            <div class="pd-form-actions">
+                                <button class="button ghost sm" id="pdCancelBtn" type="button">Cancel</button>
+                                <button class="button primary sm" id="pdSaveBtn" type="submit">Save Changes</button>
+                            </div>
+                            <div class="alert hidden" id="pdMessage" role="status" aria-live="polite"></div>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </header>
 
@@ -78,45 +131,6 @@
 
                 <!-- Stats row -->
                 <div class="scards-row" id="statsGrid"></div>
-
-                <!-- Profile -->
-                <section class="content-grid">
-                    <section class="panel">
-                        <div class="panel-header">
-                            <div>
-                                <span class="eyebrow">Profile Snapshot</span>
-                                <h2>Your profile</h2>
-                                <p class="panel-copy">Keep these details current before applying.</p>
-                            </div>
-                        </div>
-                        <div id="profileSummary"></div>
-                    </section>
-
-                    <section class="panel">
-                        <div class="panel-header">
-                            <div>
-                                <span class="eyebrow">Update Profile</span>
-                                <h2>Edit profile</h2>
-                                <p class="panel-copy">Short, accurate details improve application quality.</p>
-                            </div>
-                        </div>
-                        <form id="profileForm" class="form-stack">
-                            <label class="field">
-                                <span>Branch / Department</span>
-                                <input id="profileBranch" type="text" placeholder="e.g. Computer Science" required>
-                            </label>
-                            <label class="field">
-                                <span>Skills</span>
-                                <textarea id="profileSkills" placeholder="Java, Spring Boot, MySQL, REST APIs" required></textarea>
-                            </label>
-                            <label class="field">
-                                <span>Resume Link</span>
-                                <input id="profileResume" type="url" placeholder="https://drive.google.com/..." required>
-                            </label>
-                            <button class="button primary" id="profileButton" type="submit">Save Changes</button>
-                        </form>
-                    </section>
-                </section>
 
                 <!-- Available jobs -->
                 <section class="panel">

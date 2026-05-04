@@ -13,6 +13,7 @@ export function initializeLayout(activePage, user) {
     document.body.dataset.page = activePage;
     renderNavigation(activePage, user);
     renderHeaderActions(user);
+    renderSidebarUser(user);
     ensurePageLoader();
 }
 
@@ -105,6 +106,46 @@ function renderHeaderActions(user) {
             window.location.replace("/index.html");
         });
     }
+}
+
+function renderSidebarUser(user) {
+    const el = document.getElementById("sidebarUser");
+    if (!el) return;
+
+    if (!user) {
+        el.innerHTML = `<a class="sidebar-logout-btn" href="/login.html">Sign In</a>`;
+        return;
+    }
+
+    const initials = user.name
+        .split(" ")
+        .slice(0, 2)
+        .map((p) => p.charAt(0))
+        .join("");
+
+    el.innerHTML = `
+        <div class="sidebar-user-card">
+            <div class="sidebar-user-avatar">${escapeHtml(initials)}</div>
+            <div class="sidebar-user-info">
+                <span class="sidebar-user-name">${escapeHtml(user.name)}</span>
+                <span class="sidebar-user-role">${escapeHtml(roleLabel(user.role))}</span>
+            </div>
+        </div>
+        <button class="sidebar-logout-btn" id="sidebarLogout" type="button">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>
+                <polyline points="11 11 14 8 11 5"/>
+                <line x1="14" y1="8" x2="6" y2="8"/>
+            </svg>
+            Sign Out
+        </button>
+    `;
+
+    document.getElementById("sidebarLogout").addEventListener("click", () => {
+        clearSession();
+        setFlash("success", "Logged out successfully.");
+        window.location.replace("/index.html");
+    });
 }
 
 export function showMessage(element, message, type = "info") {

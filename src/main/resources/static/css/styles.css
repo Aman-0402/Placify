@@ -99,8 +99,7 @@ button, input, textarea, select { font: inherit; }
     flex-direction: column;
     background: var(--sidebar-bg);
     border-right: 1px solid var(--border);
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     transition: transform 0.25s ease;
     z-index: 30;
 }
@@ -152,6 +151,7 @@ button, input, textarea, select { font: inherit; }
     padding: 8px 10px;
     gap: 2px;
     flex: 1;
+    overflow-y: auto;
 }
 
 .nav-link {
@@ -178,9 +178,78 @@ button, input, textarea, select { font: inherit; }
 }
 
 .sidebar-footer {
-    padding: 14px 10px;
+    padding: 12px 10px;
     border-top: 1px solid var(--border);
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Sidebar user card */
+.sidebar-user-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+}
+.sidebar-user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+}
+.sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+.sidebar-user-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-strong);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sidebar-user-role {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: capitalize;
+}
+.sidebar-logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted-light);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    text-decoration: none;
+}
+.sidebar-logout-btn:hover {
+    background: rgba(239,68,68,0.08);
+    border-color: rgba(239,68,68,0.3);
+    color: #f87171;
 }
 
 /* ── App Main ────────────────────────────────────────────────────── */
@@ -1487,6 +1556,118 @@ input:focus, textarea:focus, select:focus {
     border-top: 1px solid var(--border);
 }
 
+/* ── Profile menu (topbar dropdown) ─────────────────────── */
+.profile-menu {
+    position: relative;
+}
+.profile-menu #headerActions {
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 320px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+    z-index: 200;
+    overflow: hidden;
+}
+.profile-dropdown.open { display: block; }
+
+.pd-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    background: var(--surface-2);
+}
+.pd-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+}
+.pd-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-strong);
+    line-height: 1.3;
+}
+.pd-email {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 1px;
+}
+.pd-divider {
+    height: 1px;
+    background: var(--border);
+}
+#pdView {
+    padding: 14px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.pd-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+.pd-row--skills { align-items: flex-start; }
+.pd-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-width: 56px;
+    padding-top: 2px;
+    flex-shrink: 0;
+}
+.pd-value {
+    font-size: 0.85rem;
+    color: var(--text-strong);
+    line-height: 1.4;
+}
+.pd-value a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+.pd-value a:hover { text-decoration: underline; }
+#pdSkills { display: flex; flex-wrap: wrap; gap: 5px; }
+#pdView .button--full { margin-top: 4px; }
+
+#pdForm {
+    padding: 14px 18px 18px;
+}
+.pd-form-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+#pdForm .alert {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
 .auth-card-header { margin-bottom: 24px; }
 
 .auth-alt-link {
@@ -1547,12 +1728,6 @@ input:focus, textarea:focus, select:focus {
 .nav-link:hover .nav-icon  { opacity: 0.9; }
 .nav-link.active .nav-icon { opacity: 1; }
 
-.sidebar-version {
-    padding: 10px 12px;
-    font-size: 0.7rem;
-    color: var(--muted);
-    font-weight: 500;
-}
 
 /* ── Topbar enhancements ─────────────────────────────────────────── */
 .topbar-right {
