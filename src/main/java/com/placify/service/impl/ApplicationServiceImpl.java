@@ -12,12 +12,14 @@ import com.placify.entity.Application;
 import com.placify.entity.Job;
 import com.placify.entity.Student;
 import com.placify.enums.ApplicationStatus;
+import com.placify.enums.NotificationType;
 import com.placify.exception.BadRequestException;
 import com.placify.exception.ResourceNotFoundException;
 import com.placify.repository.ApplicationRepository;
 import com.placify.repository.JobRepository;
 import com.placify.repository.StudentRepository;
 import com.placify.service.ApplicationService;
+import com.placify.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +31,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final StudentRepository studentRepository;
     private final JobRepository jobRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -89,7 +92,27 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponse updateApplicationStatus(Long applicationId, ApplicationStatusUpdateRequest request) {
         Application application = getApplicationEntity(applicationId);
         application.setStatus(request.getStatus());
-        return mapApplication(applicationRepository.save(application));
+        ApplicationResponse saved = mapApplication(applicationRepository.save(application));
+
+        String statusLabel = formatStatus(request.getStatus());
+        String message = "Your application for " + application.getJob().getTitle()
+                + " at " + application.getJob().getCompany().getName()
+                + " has been updated to: " + statusLabel + ".";
+        notificationService.notifyUser(application.getStudent().getUser().getId(),
+                NotificationType.STATUS_CHANGED, message, applicationId);
+
+        return saved;
+    }
+
+    private String formatStatus(ApplicationStatus status) {
+        return switch (status) {
+            case APPLIED -> "Applied";
+            case IN_REVIEW -> "Under Review";
+            case SHORTLISTED -> "Shortlisted";
+            case INTERVIEW -> "Interview";
+            case SELECTED -> "Selected — Congratulations!";
+            case REJECTED -> "Rejected";
+        };
     }
 
     @Override

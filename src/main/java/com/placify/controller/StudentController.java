@@ -155,4 +155,52 @@ public class StudentController {
                         .build()
         );
     }
+
+    @PostMapping("/me/saved-jobs/{jobId}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse<Void>> saveJob(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long jobId) {
+        studentService.saveJob(userDetails.getUsername(), jobId);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder().success(true).message("Job saved").build()
+        );
+    }
+
+    @DeleteMapping("/me/saved-jobs/{jobId}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse<Void>> unsaveJob(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long jobId) {
+        studentService.unsaveJob(userDetails.getUsername(), jobId);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder().success(true).message("Job removed from saved").build()
+        );
+    }
+
+    @GetMapping("/me/saved-jobs/ids")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse<List<Long>>> getSavedJobIds(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                ApiResponse.<List<Long>>builder()
+                        .success(true)
+                        .message("Saved job IDs fetched")
+                        .data(studentService.getSavedJobIds(userDetails.getUsername()))
+                        .build()
+        );
+    }
+
+    @GetMapping("/me/saved-jobs")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse<List<JobResponse>>> getSavedJobs(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                ApiResponse.<List<JobResponse>>builder()
+                        .success(true)
+                        .message("Saved jobs fetched")
+                        .data(studentService.getSavedJobs(userDetails.getUsername()))
+                        .build()
+        );
+    }
 }

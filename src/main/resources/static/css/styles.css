@@ -1736,11 +1736,19 @@ input:focus, textarea:focus, select:focus {
 .topbar-notify:hover { background: var(--surface-2); color: var(--text-strong); }
 .topbar-notify-dot {
     position: absolute;
-    top: 7px; right: 7px;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--indigo);
-    border: 1.5px solid var(--sidebar-bg);
+    top: 4px; right: 4px;
+    min-width: 16px; height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--danger);
+    border: 1.5px solid var(--bg);
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .topbar-user {
@@ -2451,4 +2459,141 @@ input:focus, textarea:focus, select:focus {
     color: var(--muted);
     margin: 4px 0 0;
     padding-bottom: 4px;
+}
+
+/* ── Notification dropdown ───────────────────────────────────────── */
+.notif-wrap {
+    position: relative;
+}
+
+.notif-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 330px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    z-index: 300;
+    overflow: hidden;
+    display: none;
+}
+.notif-dropdown.open { display: block; }
+
+.notif-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.notif-dropdown-header strong {
+    font-size: 0.82rem;
+    color: var(--text-strong);
+}
+.notif-mark-all {
+    font-size: 0.72rem;
+    color: var(--indigo-light);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+}
+.notif-mark-all:hover { text-decoration: underline; }
+
+.notif-list {
+    max-height: 360px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.notif-item {
+    display: flex;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: var(--surface-2); }
+.notif-item.unread { background: var(--indigo-dim); }
+.notif-item.unread:hover { background: rgba(99,102,241,0.22); }
+
+.notif-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--indigo);
+    flex-shrink: 0;
+    margin-top: 5px;
+}
+.notif-item.read .notif-dot { background: transparent; }
+
+.notif-body { flex: 1; min-width: 0; }
+.notif-msg {
+    font-size: 0.78rem;
+    color: var(--text);
+    line-height: 1.45;
+    word-break: break-word;
+}
+.notif-time {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 3px;
+}
+
+.notif-empty {
+    padding: 28px 16px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* ── Bookmark button on job cards ────────────────────────────────── */
+.bookmark-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+}
+.bookmark-btn:hover { color: var(--indigo-light); background: var(--indigo-dim); }
+.bookmark-btn.saved { color: var(--indigo-light); }
+.bookmark-btn.saved svg { fill: var(--indigo-light); }
+
+.card-head-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+.card-head-row .card-head { flex: 1; min-width: 0; }
+
+/* ── Jobs saved tab ──────────────────────────────────────────────── */
+.tab-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+.tab-btn {
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--muted-light);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { background: var(--surface-2); color: var(--text); }
+.tab-btn.active {
+    background: var(--indigo-dim);
+    border-color: rgba(99,102,241,0.35);
+    color: var(--indigo-light);
 }

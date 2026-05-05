@@ -15,7 +15,9 @@ import com.placify.exception.ResourceNotFoundException;
 import com.placify.repository.CompanyRepository;
 import com.placify.repository.JobRepository;
 import com.placify.repository.UserRepository;
+import com.placify.enums.NotificationType;
 import com.placify.service.JobService;
+import com.placify.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,7 @@ public class JobServiceImpl implements JobService {
     private final JobRepository jobRepository;
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -36,8 +39,13 @@ public class JobServiceImpl implements JobService {
 
         Job job = new Job();
         applyJobValues(job, request, company, currentUser);
+        JobResponse saved = mapJob(jobRepository.save(job));
 
-        return mapJob(jobRepository.save(job));
+        String message = "New job posted: " + saved.getTitle() + " at " + saved.getCompanyName()
+                + ". Apply before " + saved.getApplicationDeadline() + ".";
+        notificationService.notifyAllStudents(NotificationType.NEW_JOB, message, saved.getId());
+
+        return saved;
     }
 
     @Override

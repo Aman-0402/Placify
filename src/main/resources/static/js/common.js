@@ -1,8 +1,10 @@
 import {
+    apiRequest,
     clearSession,
     consumeFlash,
     dashboardPathForRole,
     escapeHtml,
+    formatDateTime,
     roleLabel,
     setFlash
 } from "./api.js";
@@ -14,6 +16,7 @@ export function initializeLayout(activePage, user) {
     renderNavigation(activePage, user);
     renderHeaderActions(user);
     ensurePageLoader();
+    if (user) initNotifications();
 }
 
 const NAV_ICONS = {
@@ -296,4 +299,99 @@ function ensurePageLoader() {
         <span class="page-loader-copy">Loading workspace...</span>
     `;
     document.body.appendChild(loaderElement);
+}
+
+function initNotifications() {
+    const bellBtn = document.querySelector(".topbar-notify");
+    if (!bellBtn) return;
+
+    // Wrap bell in a relative container so dropdown can be positioned off it
+    const wrap = document.createElement("div");
+    wrap.className = "notif-wrap";
+    bellBtn.parentNode.insertBefore(wrap, bellBtn);
+    wrap.appendChild(bellBtn);
+
+    const dot = bellBtn.querySelector(".topbar-notify-dot");
+
+    // Dropdown panel
+    const dropdown = document.createElement("div");
+    dropdown.className = "notif-dropdown";
+    dropdown.id = "notifDropdown";
+    wrap.appendChild(dropdown);
+
+    let pollTimer = null;
+
+    async function refreshCount() {
+        try {
+            const payload = await apiRequest("/api/notifications/unread-count");
+            const count = Number(payload.data) || 0;
+            if (dot) {
+                dot.textContent = count > 9 ? "9+" : count > 0 ? String(count) : "";
+                dot.style.display = count > 0 ? "flex" : "none";
+            }
+        } catch { /* silent — user may not be logged in */ }
+    }
+
+    async function openDropdown() {
+        dropdown.classList.add("open");
+        dropdown.innerHTML = `<div class="notif-empty">Loading…</div>`;
+        try {
+            const payload = await apiRequest("/api/notifications");
+            const items = payload.data || [];
+            renderDropdown(items);
+            // Mark all read after viewing
+            await apiRequest("/api/notifications/read-all", { method: "PATCH" });
+            if (dot) { dot.textContent = ""; dot.style.display = "none"; }
+        } catch {
+            dropdown.innerHTML = `<div class="notif-empty">Could not load notifications.</div>`;
+        }
+    }
+
+    function renderDropdown(items) {
+        if (!items.length) {
+            dropdown.innerHTML = `
+                <div class="notif-dropdown-header"><strong>Notifications</strong></div>
+                <div class="notif-empty">You're all caught up.</div>
+            `;
+            return;
+        }
+
+        const listHtml = items.map((n) => `
+            <div class="notif-item ${n.read ? "read" : "unread"}" data-ref="${n.referenceId || ""}">
+                <span class="notif-dot"></span>
+                <div class="notif-body">
+                    <p class="notif-msg">${escapeHtml(n.message)}</p>
+                    <p class="notif-time">${escapeHtml(formatDateTime(n.createdAt))}</p>
+                </div>
+            </div>
+        `).join("");
+
+        dropdown.innerHTML = `
+            <div class="notif-dropdown-header">
+                <strong>Notifications</strong>
+            </div>
+            <div class="notif-list">${listHtml}</div>
+        `;
+    }
+
+    bellBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (dropdown.classList.contains("open")) {
+            dropdown.classList.remove("open");
+        } else {
+            openDropdown();
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!wrap.contains(e.target)) {
+            dropdown.classList.remove("open");
+        }
+    });
+
+    refreshCount();
+    pollTimer = setInterval(refreshCount, 30000);
+
+    // Clean up interval if page unloads
+    window.addEventListener("pagehide", () => clearInterval(pollTimer));
 }

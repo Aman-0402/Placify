@@ -31,6 +31,7 @@ const profileForm = document.getElementById("profileForm");
 const profileSaveBtn = document.getElementById("profileSaveBtn");
 const profileBranch = document.getElementById("profileBranch");
 const profileSkills = document.getElementById("profileSkills");
+const profileCgpa = document.getElementById("profileCgpa");
 const resumeFile = document.getElementById("resumeFile");
 const resumeZone = document.getElementById("resumeZone");
 const resumeZoneLabel = document.getElementById("resumeZoneLabel");
@@ -53,6 +54,7 @@ async function init() {
     resumeFile.addEventListener("change", handleFileChange);
     profileBranch.addEventListener("input", syncSaveButton);
     profileSkills.addEventListener("input", syncSaveButton);
+    profileCgpa.addEventListener("input", syncSaveButton);
 
     try {
         const payload = await apiRequest("/api/students/me");
@@ -71,7 +73,8 @@ function hasChanges() {
     if (resumeFile.files.length > 0) return true;
     return (
         profileBranch.value.trim() !== state.baseline.branch ||
-        profileSkills.value.trim() !== state.baseline.skills
+        profileSkills.value.trim() !== state.baseline.skills ||
+        profileCgpa.value.trim() !== state.baseline.cgpa
     );
 }
 
@@ -107,6 +110,10 @@ function renderSnapshot() {
                 <span class="profile-meta-value">${escapeHtml(state.profile.branch || "Not set")}</span>
             </div>
             <div class="profile-meta-item">
+                <span class="profile-meta-label">CGPA</span>
+                <span class="profile-meta-value">${state.profile.cgpa != null ? escapeHtml(String(state.profile.cgpa)) : "Not set"}</span>
+            </div>
+            <div class="profile-meta-item">
                 <span class="profile-meta-label">Resume</span>
                 <span class="profile-meta-value">
                     ${state.profile.resume
@@ -127,9 +134,11 @@ function renderSnapshot() {
 function populateForm() {
     profileBranch.value = state.profile?.branch || "";
     profileSkills.value = state.profile?.skills || "";
+    profileCgpa.value = state.profile?.cgpa != null ? state.profile.cgpa : "";
     state.baseline = {
         branch: profileBranch.value.trim(),
-        skills: profileSkills.value.trim()
+        skills: profileSkills.value.trim(),
+        cgpa: profileCgpa.value.trim()
     };
     syncResumeHint();
     syncSaveButton();
@@ -186,19 +195,22 @@ async function handleSave(event) {
         }
 
         setButtonBusy(profileSaveBtn, true, "Saving...");
+        const cgpaRaw = profileCgpa.value.trim();
         const payload = await apiRequest("/api/students/me", {
             method: "PUT",
             body: {
                 branch: profileBranch.value.trim(),
                 skills: profileSkills.value.trim(),
-                resume: state.profile?.resume || ""
+                resume: state.profile?.resume || "",
+                cgpa: cgpaRaw ? parseFloat(cgpaRaw) : null
             }
         });
 
         state.profile = payload.data;
         state.baseline = {
             branch: profileBranch.value.trim(),
-            skills: profileSkills.value.trim()
+            skills: profileSkills.value.trim(),
+            cgpa: profileCgpa.value.trim()
         };
         renderSnapshot();
         syncResumeHint();
