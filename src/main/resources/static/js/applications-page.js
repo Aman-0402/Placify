@@ -12,16 +12,92 @@ import {
 import {
     consumeFlashInto,
     emptyState,
-    hideMessage,
     initializeLayout,
     renderLoadingCards,
     renderLoadingStats,
     renderLoadingSummary,
     renderStats,
     setPageBusy,
-    setButtonBusy,
-    showMessage
+    setButtonBusy
 } from "./common.js";
+
+function toast(icon, title) {
+    Swal.fire({
+        icon,
+        title,
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true
+    });
+}
+
+// Timeline steps (REJECTED and SELECTED are outcome nodes, not progress steps)
+const PROGRESS_STEPS = [
+    { key: "APPLIED",     label: "Applied" },
+    { key: "IN_REVIEW",   label: "Under Review" },
+    { key: "SHORTLISTED", label: "Shortlisted" },
+    { key: "INTERVIEW",   label: "Interview" }
+];
+const STEP_INDEX = { APPLIED: 0, IN_REVIEW: 1, SHORTLISTED: 2, INTERVIEW: 3 };
+
+const CHECK_SVG = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>`;
+const CROSS_SVG = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/></svg>`;
+const STAR_SVG  = `<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1l1.4 2.9L11 4.4l-2.5 2.4.6 3.4L6 8.8l-3.1 1.4.6-3.4L1 4.4l3.6-.5z"/></svg>`;
+
+function renderTimeline(status, updatedAt) {
+    const isSelected = status === "SELECTED";
+    const isRejected = status === "REJECTED";
+    const activeIdx = STEP_INDEX[status] ?? -1;
+
+    const stepsHtml = PROGRESS_STEPS.map((step, i) => {
+        let cls;
+        if (isSelected) {
+            cls = "done";
+        } else if (isRejected) {
+            cls = i === 0 ? "done" : "pending"; // only "Applied" is guaranteed done on reject
+        } else {
+            if (i < activeIdx) cls = "done";
+            else if (i === activeIdx) cls = "active";
+            else cls = "pending";
+        }
+
+        const nodeContent = cls === "done" ? CHECK_SVG : i + 1;
+        const connector = i < PROGRESS_STEPS.length - 1
+            ? `<div class="tl-connector ${cls === "done" ? "done" : ""}"></div>`
+            : "";
+
+        return `
+            <div class="tl-step ${cls}">
+                <div class="tl-node">${nodeContent}</div>
+                <span class="tl-label">${step.label}</span>
+            </div>
+            ${connector}
+        `;
+    }).join("");
+
+    const outcomeCls  = isSelected ? "outcome-success" : isRejected ? "outcome-danger" : "outcome-pending";
+    const outcomeIcon = isSelected ? STAR_SVG : isRejected ? CROSS_SVG : "?";
+    const outcomeLabel = isSelected ? "Offered" : isRejected ? "Rejected" : "Decision";
+    const connectorCls = isSelected ? "done" : "";
+
+    const updatedLine = updatedAt
+        ? `<p class="tl-updated">Last updated ${escapeHtml(formatDateTime(updatedAt))}</p>`
+        : "";
+
+    return `
+        <div class="app-timeline">
+            ${stepsHtml}
+            <div class="tl-connector ${connectorCls}"></div>
+            <div class="tl-step ${outcomeCls}">
+                <div class="tl-node">${outcomeIcon}</div>
+                <span class="tl-label">${outcomeLabel}</span>
+            </div>
+        </div>
+        ${updatedLine}
+    `;
+}
 
 const state = {
     user: null,
@@ -30,7 +106,6 @@ const state = {
     selectedJob: null
 };
 
-const messageElement = document.getElementById("pageMessage");
 const statsGrid = document.getElementById("statsGrid");
 const applicationsSummary = document.getElementById("applicationsSummary");
 const studentView = document.getElementById("studentView");
@@ -50,14 +125,14 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
     setPageBusy(true, "Loading applications...");
     const user = await requireAuth(["STUDENT", "ADMIN", "RECRUITER"]);
-    if (!user) {
-        setPageBusy(false);
-        return;
-    }
+    if (!user) { setPageBusy(false); return; }
 
     state.user = user;
     initializeLayout("applications", user);
-    consumeFlashInto(messageElement);
+
+    const msgEl = document.getElementById("pageMessage");
+    if (msgEl) consumeFlashInto(msgEl);
+
     renderLoadingSummary(applicationsSummary, 3);
     renderLoadingStats(statsGrid, 4);
 
@@ -82,7 +157,6 @@ function configureStudentView() {
     document.getElementById("applicationsTitle").textContent = "Submit and track your applications.";
     document.getElementById("applicationsSubtitle").textContent =
         "Selected jobs appear here for quick submission, and your recent applications stay visible below.";
-
     managerView.classList.add("hidden");
     studentView.classList.remove("hidden");
 }
@@ -93,7 +167,6 @@ function configureManagerView() {
     document.getElementById("applicationsTitle").textContent = "Review candidate pipelines and update statuses.";
     document.getElementById("applicationsSubtitle").textContent =
         "Filter applications by job or status, then move candidates through the process from one page.";
-
     studentView.classList.add("hidden");
     managerView.classList.remove("hidden");
 }
@@ -123,22 +196,19 @@ async function loadStudentView() {
         renderStudentStats();
         renderStudentApplications();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     }
 }
 
 async function loadSelectedJob() {
     const queryJobId = new URLSearchParams(window.location.search).get("jobId");
     const jobId = Number(queryJobId || getPendingJob());
-
-    if (!jobId) {
-        return null;
-    }
+    if (!jobId) return null;
 
     try {
         const payload = await apiRequest(`/api/jobs/${jobId}`);
         return payload.data;
-    } catch (error) {
+    } catch {
         clearPendingJob();
         return null;
     }
@@ -163,10 +233,10 @@ function renderStudentSummary() {
 
 function renderStudentStats() {
     renderStats(statsGrid, [
-        {label: "Applied Jobs", value: state.applications.length},
-        {label: "Shortlisted", value: state.applications.filter((item) => item.status === "SHORTLISTED").length},
-        {label: "Selected", value: state.applications.filter((item) => item.status === "SELECTED").length},
-        {label: "Pending Target", value: state.selectedJob ? "Yes" : "No"}
+        { label: "Applied Jobs",  value: state.applications.length },
+        { label: "Shortlisted",   value: state.applications.filter((a) => a.status === "SHORTLISTED").length },
+        { label: "Interview",     value: state.applications.filter((a) => a.status === "INTERVIEW").length },
+        { label: "Selected",      value: state.applications.filter((a) => a.status === "SELECTED").length }
     ]);
 }
 
@@ -227,48 +297,35 @@ function renderStudentApplications() {
         return;
     }
 
-    studentApplicationsGrid.innerHTML = state.applications.map((application) => `
+    studentApplicationsGrid.innerHTML = state.applications.map((app) => `
         <article class="card">
             <div class="card-head">
                 <div class="chip-row">
-                    <span class="status-pill ${statusTone(application.status)}">${escapeHtml(titleCase(application.status))}</span>
-                    <span class="micro-pill">${escapeHtml(application.companyName)}</span>
+                    <span class="micro-pill">${escapeHtml(app.companyName)}</span>
                 </div>
-                <h3>${escapeHtml(application.jobTitle)}</h3>
+                <h3>${escapeHtml(app.jobTitle)}</h3>
+                <p class="tl-applied-date">Applied ${escapeHtml(formatDateTime(app.createdAt))}</p>
             </div>
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <span>Applied</span>
-                    <strong>${escapeHtml(formatDateTime(application.createdAt))}</strong>
-                </div>
-                <div class="detail-item">
-                    <span>Applicant</span>
-                    <strong>${escapeHtml(application.studentName)}</strong>
-                </div>
-            </div>
+            ${renderTimeline(app.status, app.updatedAt !== app.createdAt ? app.updatedAt : null)}
         </article>
     `).join("");
 }
 
 async function submitApplication(event) {
     event.preventDefault();
-    hideMessage(messageElement);
     setButtonBusy(applyButton, true, "Applying...");
 
     try {
         const jobId = Number(document.getElementById("selectedJobId").value);
-        await apiRequest("/api/applications", {
-            method: "POST",
-            body: {jobId}
-        });
+        await apiRequest("/api/applications", { method: "POST", body: { jobId } });
 
         clearPendingJob();
         state.selectedJob = null;
         window.history.replaceState({}, "", "/applications.html");
-        showMessage(messageElement, "Application submitted successfully.", "success");
+        toast("success", "Application submitted successfully.");
         await loadStudentView();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     } finally {
         setButtonBusy(applyButton, false);
     }
@@ -290,7 +347,7 @@ async function loadManagerView() {
         renderManagerFilters(jobId);
         renderManagerTable();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     }
 }
 
@@ -313,10 +370,10 @@ function renderManagerSummary() {
 
 function renderManagerStats() {
     renderStats(statsGrid, [
-        {label: "Applications", value: state.applications.length},
-        {label: "Jobs", value: state.jobs.length},
-        {label: "Shortlisted", value: state.applications.filter((item) => item.status === "SHORTLISTED").length},
-        {label: "Selected", value: state.applications.filter((item) => item.status === "SELECTED").length}
+        { label: "Applications", value: state.applications.length },
+        { label: "Jobs",         value: state.jobs.length },
+        { label: "Shortlisted",  value: state.applications.filter((a) => a.status === "SHORTLISTED").length },
+        { label: "Selected",     value: state.applications.filter((a) => a.status === "SELECTED").length }
     ]);
 }
 
@@ -325,45 +382,44 @@ function renderManagerFilters(preselectedJobId) {
         <option value="">All jobs</option>
         ${state.jobs.map((job) => `
             <option value="${job.id}" ${String(job.id) === String(preselectedJobId || "") ? "selected" : ""}>
-                ${escapeHtml(job.title)} - ${escapeHtml(job.companyName)}
+                ${escapeHtml(job.title)} — ${escapeHtml(job.companyName)}
             </option>
         `).join("")}
     `;
 }
 
-function renderManagerTable() {
-    const filteredApplications = state.applications.filter((application) => {
-        const statusValue = managerStatusFilter.value;
-        if (!statusValue) {
-            return true;
-        }
-        return application.status === statusValue;
-    });
+const ALL_STATUSES = ["APPLIED", "IN_REVIEW", "SHORTLISTED", "INTERVIEW", "REJECTED", "SELECTED"];
+const STATUS_LABELS = {
+    APPLIED: "Applied", IN_REVIEW: "Under Review", SHORTLISTED: "Shortlisted",
+    INTERVIEW: "Interview", REJECTED: "Rejected", SELECTED: "Selected"
+};
 
-    if (!filteredApplications.length) {
+function renderManagerTable() {
+    const statusFilter = managerStatusFilter.value;
+    const filtered = state.applications.filter((a) => !statusFilter || a.status === statusFilter);
+
+    if (!filtered.length) {
         applicationsTableBody.innerHTML = `
-            <tr>
-                <td colspan="6">${emptyState("No applications matched the selected filters.")}</td>
-            </tr>
+            <tr><td colspan="6">${emptyState("No applications matched the selected filters.")}</td></tr>
         `;
         return;
     }
 
-    applicationsTableBody.innerHTML = filteredApplications.map((application) => `
+    applicationsTableBody.innerHTML = filtered.map((app) => `
         <tr>
-            <td>${escapeHtml(application.studentName)}</td>
-            <td>${escapeHtml(application.jobTitle)}</td>
-            <td>${escapeHtml(application.companyName)}</td>
+            <td>${escapeHtml(app.studentName)}</td>
+            <td>${escapeHtml(app.jobTitle)}</td>
+            <td>${escapeHtml(app.companyName)}</td>
             <td>
-                <select id="status-${application.id}">
-                    ${["APPLIED", "IN_REVIEW", "SHORTLISTED", "REJECTED", "SELECTED"].map((status) => `
-                        <option value="${status}" ${status === application.status ? "selected" : ""}>${escapeHtml(titleCase(status))}</option>
+                <select id="status-${app.id}">
+                    ${ALL_STATUSES.map((s) => `
+                        <option value="${s}" ${s === app.status ? "selected" : ""}>${escapeHtml(STATUS_LABELS[s])}</option>
                     `).join("")}
                 </select>
             </td>
-            <td>${escapeHtml(formatDateTime(application.createdAt))}</td>
+            <td>${escapeHtml(formatDateTime(app.createdAt))}</td>
             <td class="table-actions">
-                <button class="button secondary" data-update-status="${application.id}" type="button">Save</button>
+                <button class="button secondary" data-update-status="${app.id}" type="button">Save</button>
             </td>
         </tr>
     `).join("");
@@ -371,8 +427,6 @@ function renderManagerTable() {
 
 async function handleManagerFilter(event) {
     event.preventDefault();
-    hideMessage(messageElement);
-
     try {
         const jobId = managerJobFilter.value;
         const payload = await apiRequest(jobId ? `/api/applications/job/${jobId}` : "/api/applications");
@@ -380,7 +434,7 @@ async function handleManagerFilter(event) {
         renderManagerStats();
         renderManagerTable();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     }
 }
 
@@ -392,11 +446,8 @@ async function resetManagerFilters() {
 
 async function updateApplicationStatus(event) {
     const button = event.target.closest("[data-update-status]");
-    if (!button) {
-        return;
-    }
+    if (!button) return;
 
-    hideMessage(messageElement);
     const applicationId = Number(button.dataset.updateStatus);
     const select = document.getElementById(`status-${applicationId}`);
     setButtonBusy(button, true, "Saving...");
@@ -404,24 +455,13 @@ async function updateApplicationStatus(event) {
     try {
         await apiRequest(`/api/applications/${applicationId}/status`, {
             method: "PATCH",
-            body: {status: select.value}
+            body: { status: select.value }
         });
-
-        showMessage(messageElement, "Application status updated successfully.", "success");
+        toast("success", "Status updated.");
         await handleManagerFilter(new Event("submit"));
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     } finally {
         setButtonBusy(button, false);
     }
-}
-
-function statusTone(status) {
-    if (status === "SELECTED" || status === "SHORTLISTED") {
-        return "success";
-    }
-    if (status === "REJECTED") {
-        return "danger";
-    }
-    return "warning";
 }

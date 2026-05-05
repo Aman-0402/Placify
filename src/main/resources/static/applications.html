@@ -7,6 +7,7 @@
     <title>Placify | Applications</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -65,8 +66,6 @@
                     </aside>
                 </section>
 
-                <div class="alert hidden" id="pageMessage" role="status" aria-live="polite"></div>
-
                 <section class="stats-grid" id="statsGrid"></section>
 
                 <section class="content-grid" id="studentView">
@@ -115,11 +114,12 @@
                             <span>Status Filter</span>
                             <select id="managerStatusFilter">
                                 <option value="">All statuses</option>
-                                <option value="APPLIED">APPLIED</option>
-                                <option value="IN_REVIEW">IN_REVIEW</option>
-                                <option value="SHORTLISTED">SHORTLISTED</option>
-                                <option value="REJECTED">REJECTED</option>
-                                <option value="SELECTED">SELECTED</option>
+                                <option value="APPLIED">Applied</option>
+                                <option value="IN_REVIEW">Under Review</option>
+                                <option value="SHORTLISTED">Shortlisted</option>
+                                <option value="INTERVIEW">Interview</option>
+                                <option value="REJECTED">Rejected</option>
+                                <option value="SELECTED">Selected</option>
                             </select>
                         </label>
                         <div class="inline-actions">
