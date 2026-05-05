@@ -94,8 +94,10 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentRepository.findByUserEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
         student.setSkills(request.getSkills().trim());
-        student.setResume(request.getResume().trim());
         student.setBranch(request.getBranch().trim());
+        if (request.getResume() != null && !request.getResume().isBlank()) {
+            student.setResume(request.getResume().trim());
+        }
         return mapStudent(studentRepository.save(student));
     }
 

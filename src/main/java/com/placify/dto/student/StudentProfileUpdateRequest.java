@@ -15,7 +15,6 @@ public class StudentProfileUpdateRequest {
     @Size(max = 1000, message = "Skills must not exceed 1000 characters")
     private String skills;
 
-    @NotBlank(message = "Resume is required")
     @Size(max = 255, message = "Resume must not exceed 255 characters")
     private String resume;
 

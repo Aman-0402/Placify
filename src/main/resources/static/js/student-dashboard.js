@@ -1,5 +1,6 @@
 import {
     apiRequest,
+    apiUpload,
     clearPendingJob,
     escapeHtml,
     formatDate,
@@ -231,7 +232,6 @@ function renderProfileDropdown() {
 
     document.getElementById("pdBranchInput").value = state.profile.branch || "";
     document.getElementById("pdSkillsInput").value = state.profile.skills || "";
-    document.getElementById("pdResumeInput").value = state.profile.resume || "";
 }
 
 function renderJobs() {
@@ -391,10 +391,7 @@ async function updateProfile(event) {
             setButtonBusy(saveBtn, true, "Uploading resume...");
             const formData = new FormData();
             formData.append("file", file);
-            const uploadPayload = await apiRequest("/api/students/me/resume", {
-                method: "POST",
-                rawBody: formData
-            });
+            const uploadPayload = await apiUpload("/api/students/me/resume", formData);
             state.profile = uploadPayload.data;
         }
 

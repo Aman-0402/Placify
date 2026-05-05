@@ -151,6 +151,23 @@ export async function apiRequest(path, options = {}) {
     return payload;
 }
 
+export async function apiUpload(path, formData) {
+    const token = getToken();
+    const headers = { Accept: "application/json" };
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+    const response = await fetch(path, { method: "POST", headers, body: formData });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        if (response.status === 401) clearSession();
+        const error = new Error(extractErrorMessage(payload));
+        error.status = response.status;
+        throw error;
+    }
+    return payload;
+}
+
 export function extractErrorMessage(payload) {
     if (payload.validationErrors) {
         return Object.values(payload.validationErrors).join(" ");

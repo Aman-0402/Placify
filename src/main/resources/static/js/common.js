@@ -37,6 +37,11 @@ const NAV_ICONS = {
     auth: `<svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="9" cy="6" r="3"/>
         <path d="M2 17c0-3.866 3.134-7 7-7s7 3.134 7 7"/>
+    </svg>`,
+    profile: `<svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="6" r="3"/>
+        <path d="M2 16c0-3.314 3.134-6 7-6s7 2.686 7 6"/>
+        <path d="M12 6h2M12 9h2" stroke-width="1.4"/>
     </svg>`
 };
 
@@ -56,6 +61,9 @@ function renderNavigation(activePage, user) {
         });
         links.push({key: "jobs", href: "/jobs.html", label: "Jobs"});
         links.push({key: "applications", href: "/applications.html", label: "Applications"});
+        if (user.role === "STUDENT") {
+            links.push({key: "profile", href: "/profile.html", label: "My Profile"});
+        }
     } else {
         links.push({key: "auth", href: "/login.html", label: "Login"});
         links.push({key: "jobs", href: "/jobs.html", label: "Jobs"});
