@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.placify.dto.job.JobResponse;
 import com.placify.dto.student.StudentProfileUpdateRequest;
 import com.placify.dto.student.StudentRequest;
 import com.placify.dto.student.StudentResponse;
@@ -25,4 +26,12 @@ public interface StudentService {
     StudentResponse uploadResume(String email, MultipartFile file);
 
     void deleteStudent(Long studentId);
+
+    void saveJob(String email, Long jobId);
+
+    void unsaveJob(String email, Long jobId);
+
+    List<Long> getSavedJobIds(String email);
+
+    List<JobResponse> getSavedJobs(String email);
 }

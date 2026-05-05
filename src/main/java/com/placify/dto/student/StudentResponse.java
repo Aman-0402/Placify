@@ -18,4 +18,5 @@ public class StudentResponse {
     private String branch;
     private String skills;
     private String resume;
+    private Double cgpa;
 }

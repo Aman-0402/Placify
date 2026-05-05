@@ -39,6 +39,9 @@ public class Student extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String branch;
 
+    @Column
+    private Double cgpa;
+
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Application> applications = new ArrayList<>();
 }

@@ -13,14 +13,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.placify.dto.job.JobResponse;
 import com.placify.dto.student.StudentProfileUpdateRequest;
 import com.placify.dto.student.StudentRequest;
 import com.placify.dto.student.StudentResponse;
+import com.placify.entity.Job;
+import com.placify.entity.SavedJob;
 import com.placify.entity.Student;
 import com.placify.entity.User;
 import com.placify.enums.Role;
 import com.placify.exception.BadRequestException;
 import com.placify.exception.ResourceNotFoundException;
+import com.placify.repository.JobRepository;
+import com.placify.repository.SavedJobRepository;
 import com.placify.repository.StudentRepository;
 import com.placify.repository.UserRepository;
 import com.placify.service.StudentService;
@@ -32,13 +37,18 @@ public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
+    private final JobRepository jobRepository;
+    private final SavedJobRepository savedJobRepository;
 
     @Value("${app.upload.dir:./uploads}")
     private String uploadDir;
 
-    public StudentServiceImpl(StudentRepository studentRepository, UserRepository userRepository) {
+    public StudentServiceImpl(StudentRepository studentRepository, UserRepository userRepository,
+                              JobRepository jobRepository, SavedJobRepository savedJobRepository) {
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
+        this.jobRepository = jobRepository;
+        this.savedJobRepository = savedJobRepository;
     }
 
     @Override
@@ -98,6 +108,9 @@ public class StudentServiceImpl implements StudentService {
         if (request.getResume() != null && !request.getResume().isBlank()) {
             student.setResume(request.getResume().trim());
         }
+        if (request.getCgpa() != null) {
+            student.setCgpa(request.getCgpa());
+        }
         return mapStudent(studentRepository.save(student));
     }
 
@@ -137,6 +150,62 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.delete(getStudentEntity(studentId));
     }
 
+    @Override
+    @Transactional
+    public void saveJob(String email, Long jobId) {
+        Student student = studentRepository.findByUserEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+        if (savedJobRepository.existsByStudentIdAndJobId(student.getId(), jobId)) {
+            return;
+        }
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+        savedJobRepository.save(new SavedJob(student, job));
+    }
+
+    @Override
+    @Transactional
+    public void unsaveJob(String email, Long jobId) {
+        Student student = studentRepository.findByUserEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+        savedJobRepository.deleteByStudentIdAndJobId(student.getId(), jobId);
+    }
+
+    @Override
+    public List<Long> getSavedJobIds(String email) {
+        Student student = studentRepository.findByUserEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+        return savedJobRepository.findByStudentId(student.getId()).stream()
+                .map(sj -> sj.getJob().getId())
+                .toList();
+    }
+
+    @Override
+    public List<JobResponse> getSavedJobs(String email) {
+        Student student = studentRepository.findByUserEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+        return savedJobRepository.findByStudentId(student.getId()).stream()
+                .map(sj -> mapJob(sj.getJob()))
+                .toList();
+    }
+
+    private JobResponse mapJob(Job job) {
+        return JobResponse.builder()
+                .id(job.getId())
+                .title(job.getTitle())
+                .description(job.getDescription())
+                .eligibility(job.getEligibility())
+                .location(job.getLocation())
+                .salaryPackage(job.getSalaryPackage())
+                .applicationDeadline(job.getApplicationDeadline())
+                .active(job.isActive())
+                .companyId(job.getCompany().getId())
+                .companyName(job.getCompany().getName())
+                .createdAt(job.getCreatedAt())
+                .updatedAt(job.getUpdatedAt())
+                .build();
+    }
+
     private User getStudentUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -167,6 +236,7 @@ public class StudentServiceImpl implements StudentService {
                 .branch(student.getBranch())
                 .skills(student.getSkills())
                 .resume(student.getResume())
+                .cgpa(student.getCgpa())
                 .build();
     }
 }

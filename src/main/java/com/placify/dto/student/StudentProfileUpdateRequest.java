@@ -1,5 +1,7 @@
 package com.placify.dto.student;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -21,4 +23,8 @@ public class StudentProfileUpdateRequest {
     @NotBlank(message = "Branch is required")
     @Size(max = 100, message = "Branch must not exceed 100 characters")
     private String branch;
+
+    @DecimalMin(value = "0.0", message = "CGPA must be at least 0.0")
+    @DecimalMax(value = "10.0", message = "CGPA must not exceed 10.0")
+    private Double cgpa;
 }
