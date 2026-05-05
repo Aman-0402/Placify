@@ -150,15 +150,58 @@ function initProfileDropdown() {
     document.getElementById("pdEditBtn").addEventListener("click", () => {
         document.getElementById("pdView").classList.add("hidden");
         document.getElementById("pdForm").classList.remove("hidden");
+        syncResumeHint();
     });
 
     document.getElementById("pdCancelBtn").addEventListener("click", () => {
         document.getElementById("pdForm").classList.add("hidden");
         document.getElementById("pdView").classList.remove("hidden");
         hideMessage(document.getElementById("pdMessage"));
+        resetResumeZone();
     });
 
+    document.getElementById("pdResumeFile").addEventListener("change", handleResumeFileChange);
+
     document.getElementById("pdForm").addEventListener("submit", updateProfile);
+}
+
+function handleResumeFileChange() {
+    const file = document.getElementById("pdResumeFile").files[0];
+    const label = document.getElementById("pdResumeZoneLabel");
+    const zone = document.getElementById("pdResumeZone");
+
+    if (!file) {
+        resetResumeZone();
+        return;
+    }
+    if (file.type !== "application/pdf") {
+        showMessage(document.getElementById("pdMessage"), "Only PDF files are allowed.", "error");
+        resetResumeZone();
+        return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+        showMessage(document.getElementById("pdMessage"), "File size must not exceed 2 MB.", "error");
+        resetResumeZone();
+        return;
+    }
+    label.textContent = file.name;
+    zone.classList.add("has-file");
+}
+
+function resetResumeZone() {
+    document.getElementById("pdResumeFile").value = "";
+    document.getElementById("pdResumeZoneLabel").textContent = "Click to choose PDF";
+    document.getElementById("pdResumeZone").classList.remove("has-file");
+}
+
+function syncResumeHint() {
+    const hint = document.getElementById("pdResumeCurrent");
+    if (state.profile?.resume) {
+        const filename = state.profile.resume.split("/").pop();
+        hint.innerHTML = `Current: <a href="${escapeHtml(state.profile.resume)}" target="_blank" rel="noopener">${escapeHtml(filename)}</a>`;
+    } else {
+        hint.textContent = "No resume uploaded yet.";
+    }
 }
 
 function renderProfileDropdown() {
@@ -341,12 +384,27 @@ async function updateProfile(event) {
     setButtonBusy(saveBtn, true, "Saving...");
 
     try {
+        const fileInput = document.getElementById("pdResumeFile");
+        const file = fileInput.files[0];
+
+        if (file) {
+            setButtonBusy(saveBtn, true, "Uploading resume...");
+            const formData = new FormData();
+            formData.append("file", file);
+            const uploadPayload = await apiRequest("/api/students/me/resume", {
+                method: "POST",
+                rawBody: formData
+            });
+            state.profile = uploadPayload.data;
+        }
+
+        setButtonBusy(saveBtn, true, "Saving...");
         const payload = await apiRequest("/api/students/me", {
             method: "PUT",
             body: {
                 branch: document.getElementById("pdBranchInput").value.trim(),
                 skills: document.getElementById("pdSkillsInput").value.trim(),
-                resume: document.getElementById("pdResumeInput").value.trim()
+                resume: state.profile?.resume || ""
             }
         });
 
@@ -354,6 +412,7 @@ async function updateProfile(event) {
         renderProfileDropdown();
         renderDashboardStats();
         renderAccountSnapshot();
+        resetResumeZone();
 
         document.getElementById("pdForm").classList.add("hidden");
         document.getElementById("pdView").classList.remove("hidden");

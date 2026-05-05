@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -110,6 +111,20 @@ public class StudentController {
                         .success(true)
                         .message("Student profile updated successfully")
                         .data(studentService.updateOwnProfile(userDetails.getUsername(), request))
+                        .build()
+        );
+    }
+
+    @PostMapping("/me/resume")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse<StudentResponse>> uploadResume(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(
+                ApiResponse.<StudentResponse>builder()
+                        .success(true)
+                        .message("Resume uploaded successfully")
+                        .data(studentService.uploadResume(userDetails.getUsername(), file))
                         .build()
         );
     }

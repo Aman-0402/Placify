@@ -1593,6 +1593,49 @@ input:focus, textarea:focus, select:focus {
 #pdForm {
     padding: 14px 18px 18px;
 }
+/* Resume upload zone */
+.resume-file-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+.resume-upload-zone {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--muted-light);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.resume-upload-zone:hover,
+.resume-upload-zone:focus-within {
+    border-color: var(--accent);
+    background: rgba(99,102,241,0.06);
+    color: var(--text-strong);
+}
+.resume-upload-zone.has-file {
+    border-color: var(--cyan);
+    border-style: solid;
+    color: var(--text-strong);
+    background: rgba(6,182,212,0.06);
+}
+.resume-current-hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 5px;
+}
+.resume-current-hint a {
+    color: var(--accent);
+    text-decoration: none;
+}
+.resume-current-hint a:hover { text-decoration: underline; }
+
 .pd-form-actions {
     display: flex;
     gap: 8px;

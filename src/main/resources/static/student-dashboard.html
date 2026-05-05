@@ -91,10 +91,18 @@
                                 <span>Skills <small>(comma-separated)</small></span>
                                 <textarea id="pdSkillsInput" rows="3" placeholder="Java, Spring Boot, MySQL" required></textarea>
                             </label>
-                            <label class="field">
-                                <span>Resume Link</span>
-                                <input id="pdResumeInput" type="url" placeholder="https://drive.google.com/..." required>
-                            </label>
+                            <div class="field">
+                                <span>Resume <small>(PDF · max 2 MB)</small></span>
+                                <label class="resume-upload-zone" id="pdResumeZone">
+                                    <input id="pdResumeFile" type="file" accept=".pdf" class="resume-file-hidden">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 12V4"/><path d="M5 8l4-4 4 4"/>
+                                        <path d="M2 14h14"/>
+                                    </svg>
+                                    <span id="pdResumeZoneLabel">Click to choose PDF</span>
+                                </label>
+                                <p class="resume-current-hint" id="pdResumeCurrent"></p>
+                            </div>
                             <div class="pd-form-actions">
                                 <button class="button ghost sm" id="pdCancelBtn" type="button">Cancel</button>
                                 <button class="button primary sm" id="pdSaveBtn" type="submit">Save Changes</button>

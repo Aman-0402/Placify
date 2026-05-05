@@ -119,6 +119,7 @@ export async function apiRequest(path, options = {}) {
     };
     const token = getToken();
     const hasBody = options.body !== undefined && options.body !== null;
+    const hasRawBody = options.rawBody !== undefined && options.rawBody !== null;
 
     if (token && !options.skipAuth) {
         headers.Authorization = `Bearer ${token}`;
@@ -131,7 +132,7 @@ export async function apiRequest(path, options = {}) {
     const response = await fetch(path, {
         method: options.method || "GET",
         headers,
-        body: hasBody ? JSON.stringify(options.body) : undefined
+        body: hasRawBody ? options.rawBody : hasBody ? JSON.stringify(options.body) : undefined
     });
 
     const payload = await response.json().catch(() => ({}));

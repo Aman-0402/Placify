@@ -1,9 +1,17 @@
 package com.placify.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.placify.dto.student.StudentProfileUpdateRequest;
 import com.placify.dto.student.StudentRequest;
@@ -17,15 +25,21 @@ import com.placify.repository.StudentRepository;
 import com.placify.repository.UserRepository;
 import com.placify.service.StudentService;
 
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
+
+    @Value("${app.upload.dir:./uploads}")
+    private String uploadDir;
+
+    public StudentServiceImpl(StudentRepository studentRepository, UserRepository userRepository) {
+        this.studentRepository = studentRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional
@@ -83,6 +97,36 @@ public class StudentServiceImpl implements StudentService {
         student.setResume(request.getResume().trim());
         student.setBranch(request.getBranch().trim());
         return mapStudent(studentRepository.save(student));
+    }
+
+    @Override
+    @Transactional
+    public StudentResponse uploadResume(String email, MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new BadRequestException("No file provided");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.equals("application/pdf")) {
+            throw new BadRequestException("Only PDF files are allowed");
+        }
+        if (file.getSize() > 2 * 1024 * 1024) {
+            throw new BadRequestException("File size must not exceed 2MB");
+        }
+
+        Student student = studentRepository.findByUserEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found"));
+
+        try {
+            Path resumeDir = Paths.get(uploadDir, "resumes");
+            Files.createDirectories(resumeDir);
+            String filename = student.getId() + "_" + UUID.randomUUID() + ".pdf";
+            Path destination = resumeDir.resolve(filename);
+            Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+            student.setResume("/resumes/" + filename);
+            return mapStudent(studentRepository.save(student));
+        } catch (IOException e) {
+            throw new BadRequestException("Failed to store resume file");
+        }
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.placify.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.placify.dto.student.StudentProfileUpdateRequest;
 import com.placify.dto.student.StudentRequest;
 import com.placify.dto.student.StudentResponse;
@@ -19,6 +21,8 @@ public interface StudentService {
     StudentResponse updateStudent(Long studentId, StudentRequest request);
 
     StudentResponse updateOwnProfile(String email, StudentProfileUpdateRequest request);
+
+    StudentResponse uploadResume(String email, MultipartFile file);
 
     void deleteStudent(Long studentId);
 }

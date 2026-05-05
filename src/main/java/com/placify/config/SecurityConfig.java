@@ -47,8 +47,8 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler))
                 .authenticationProvider(daoAuthenticationProvider)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index.html", "/*.html", "/css/**", "/js/**", "/images/**", "/error",
-                                "/favicon.ico", "/favicon.svg").permitAll()
+                        .requestMatchers("/", "/index.html", "/*.html", "/css/**", "/js/**", "/images/**",
+                                "/resumes/**", "/error", "/favicon.ico", "/favicon.svg").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/companies/**", "/api/jobs/**").permitAll()
                         .requestMatchers("/api/auth/me").authenticated()
