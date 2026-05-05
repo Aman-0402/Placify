@@ -204,7 +204,9 @@ export function setButtonBusy(button, busy, busyLabel = "Please wait...") {
     }
 
     if (busy) {
-        button.dataset.originalLabel = button.textContent;
+        if (!button.dataset.originalLabel) {
+            button.dataset.originalLabel = button.textContent;
+        }
         button.textContent = busyLabel;
         button.disabled = true;
         return;
@@ -212,6 +214,7 @@ export function setButtonBusy(button, busy, busyLabel = "Please wait...") {
 
     button.disabled = false;
     button.textContent = button.dataset.originalLabel || button.textContent;
+    delete button.dataset.originalLabel;
 }
 
 export function setPageBusy(busy, label = "Loading workspace...") {

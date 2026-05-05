@@ -1,25 +1,36 @@
 import {
     apiRequest,
     apiUpload,
+    consumeFlash,
     escapeHtml,
     requireAuth
 } from "./api.js";
 import {
-    consumeFlashInto,
     emptyState,
-    hideMessage,
     initializeLayout,
     setButtonBusy,
-    setPageBusy,
-    showMessage
+    setPageBusy
 } from "./common.js";
 
-const state = { user: null, profile: null };
+function toast(icon, title) {
+    Swal.fire({
+        icon,
+        title,
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true
+    });
+}
 
-const messageElement = document.getElementById("pageMessage");
+const state = { user: null, profile: null, baseline: null };
+
 const profileSnapshot = document.getElementById("profileSnapshot");
 const profileForm = document.getElementById("profileForm");
 const profileSaveBtn = document.getElementById("profileSaveBtn");
+const profileBranch = document.getElementById("profileBranch");
+const profileSkills = document.getElementById("profileSkills");
 const resumeFile = document.getElementById("resumeFile");
 const resumeZone = document.getElementById("resumeZone");
 const resumeZoneLabel = document.getElementById("resumeZoneLabel");
@@ -34,10 +45,14 @@ async function init() {
 
     state.user = user;
     initializeLayout("profile", user);
-    consumeFlashInto(messageElement);
+
+    const flash = consumeFlash();
+    if (flash) toast(flash.type === "success" ? "success" : "error", flash.message);
 
     profileForm.addEventListener("submit", handleSave);
     resumeFile.addEventListener("change", handleFileChange);
+    profileBranch.addEventListener("input", syncSaveButton);
+    profileSkills.addEventListener("input", syncSaveButton);
 
     try {
         const payload = await apiRequest("/api/students/me");
@@ -45,10 +60,23 @@ async function init() {
         renderSnapshot();
         populateForm();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     } finally {
         setPageBusy(false);
     }
+}
+
+function hasChanges() {
+    if (!state.baseline) return false;
+    if (resumeFile.files.length > 0) return true;
+    return (
+        profileBranch.value.trim() !== state.baseline.branch ||
+        profileSkills.value.trim() !== state.baseline.skills
+    );
+}
+
+function syncSaveButton() {
+    profileSaveBtn.disabled = !hasChanges();
 }
 
 function renderSnapshot() {
@@ -97,9 +125,14 @@ function renderSnapshot() {
 }
 
 function populateForm() {
-    document.getElementById("profileBranch").value = state.profile?.branch || "";
-    document.getElementById("profileSkills").value = state.profile?.skills || "";
+    profileBranch.value = state.profile?.branch || "";
+    profileSkills.value = state.profile?.skills || "";
+    state.baseline = {
+        branch: profileBranch.value.trim(),
+        skills: profileSkills.value.trim()
+    };
     syncResumeHint();
+    syncSaveButton();
 }
 
 function syncResumeHint() {
@@ -116,29 +149,29 @@ function handleFileChange() {
     if (!file) { resetZone(); return; }
 
     if (file.type !== "application/pdf") {
-        showMessage(messageElement, "Only PDF files are allowed.", "error");
+        toast("error", "Only PDF files are allowed.");
         resetZone();
         return;
     }
     if (file.size > 2 * 1024 * 1024) {
-        showMessage(messageElement, "File size must not exceed 2 MB.", "error");
+        toast("error", "File size must not exceed 2 MB.");
         resetZone();
         return;
     }
     resumeZoneLabel.textContent = file.name;
     resumeZone.classList.add("has-file");
-    hideMessage(messageElement);
+    syncSaveButton();
 }
 
 function resetZone() {
     resumeFile.value = "";
     resumeZoneLabel.textContent = "Click to choose PDF";
     resumeZone.classList.remove("has-file");
+    syncSaveButton();
 }
 
 async function handleSave(event) {
     event.preventDefault();
-    hideMessage(messageElement);
     setButtonBusy(profileSaveBtn, true, "Saving...");
 
     try {
@@ -156,19 +189,24 @@ async function handleSave(event) {
         const payload = await apiRequest("/api/students/me", {
             method: "PUT",
             body: {
-                branch: document.getElementById("profileBranch").value.trim(),
-                skills: document.getElementById("profileSkills").value.trim(),
+                branch: profileBranch.value.trim(),
+                skills: profileSkills.value.trim(),
                 resume: state.profile?.resume || ""
             }
         });
 
         state.profile = payload.data;
+        state.baseline = {
+            branch: profileBranch.value.trim(),
+            skills: profileSkills.value.trim()
+        };
         renderSnapshot();
         syncResumeHint();
-        showMessage(messageElement, "Profile updated successfully.", "success");
+        toast("success", "Profile updated successfully.");
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     } finally {
         setButtonBusy(profileSaveBtn, false);
+        syncSaveButton();
     }
 }
