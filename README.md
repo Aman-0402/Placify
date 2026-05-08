@@ -1,322 +1,250 @@
 # Placify
 
-> Smart Campus Placement Management System built with Spring Boot, MySQL, JWT security, and a professional no-framework frontend.
+> Campus Placement Management System — React + Spring Boot full-stack platform for students and recruiters.
 
 ![Java](https://img.shields.io/badge/Java-21-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.3-6DB33F)
+![React](https://img.shields.io/badge/React-19-61DAFB)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF)
 ![MySQL](https://img.shields.io/badge/MySQL-8+-4479A1)
-![Security](https://img.shields.io/badge/Auth-JWT%20%2B%20BCrypt-black)
-![Frontend](https://img.shields.io/badge/Frontend-HTML%20%7C%20CSS%20%7C%20JavaScript-orange)
+![Auth](https://img.shields.io/badge/Auth-JWT%20%2B%20BCrypt-black)
 
-## Overview
+---
 
-Placify is a full-stack campus placement platform designed for final-year project demonstration as well as real institutional workflow modeling. It centralizes student profiles, recruiter job postings, company management, and application tracking into one secure web application.
+## What is Placify?
 
-The backend is structured using a clean layered architecture:
+Most college placement workflows still run on spreadsheets, email threads, and WhatsApp groups. That creates fragmented candidate data, repeated manual updates, and poor visibility for every stakeholder.
 
-- `Controller → Service → Repository → Entity`
-- DTO-based API contracts
-- Global exception handling
-- Validation annotations
-- JWT authentication with role-based authorization
-- MySQL persistence using JPA and Hibernate
+Placify replaces that with a role-based web platform where:
 
-The frontend is intentionally built with plain `HTML`, `CSS`, and `JavaScript` so the full request flow remains transparent and easy to evaluate academically. The UI follows a modern dark SaaS design with a dedicated sidebar, topbar, and responsive layout — no CSS frameworks used.
+- **Admins** manage companies and oversee the entire process
+- **Recruiters** post jobs, review applicants, and update hiring status
+- **Students** maintain a profile, browse active openings, apply, and track their application pipeline in real time
 
-## Why This Project
-
-Most college placement workflows still rely on spreadsheets, email threads, and messaging groups. That creates:
-
-- Fragmented candidate data
-- Repeated manual updates
-- Poor visibility of active jobs
-- Weak access control
-- No clean application tracking
-
-Placify solves this by giving each stakeholder a dedicated role and workflow:
-
-- **Admin** manages the platform, companies, and oversight actions
-- **Recruiter** posts jobs and reviews applications
-- **Student** maintains a profile, browses jobs, applies, and tracks status
-
-## Core Features
-
-- Secure login and registration (separate, dedicated pages)
-- JWT token generation and request validation
-- BCrypt password encryption
-- Role-based access control for `ADMIN`, `RECRUITER`, and `STUDENT`
-- Student profile management with skill chip autocomplete on registration
-- Company creation and listing
-- Job posting, viewing, and filtering
-- Job application and status tracking with visual pipeline
-- Modern SaaS-style frontend with dark theme, sidebar navigation, and dynamic API integration
-- Clean MySQL schema with optional demo seed data
-
-## Architecture
-
-```mermaid
-flowchart LR
-    A[Browser UI<br/>HTML + CSS + JavaScript] --> B[Fetch API Calls]
-    B --> C[Spring Security Filter Chain]
-    C --> D[REST Controllers]
-    D --> E[Service Layer]
-    E --> F[Repository Layer]
-    F --> G[(MySQL Database)]
-```
-
-### Role Access Model
-
-| Role | Main Responsibilities |
-| --- | --- |
-| `ADMIN` | Manage companies, oversee jobs, manage platform-level operations |
-| `RECRUITER` | Post jobs, manage jobs, review candidate applications |
-| `STUDENT` | Update profile, browse jobs, apply, track application status |
+---
 
 ## Tech Stack
 
 | Layer | Technology |
-| --- | --- |
-| Backend | Spring Boot 4.0.3 |
-| Language | Java 21 |
-| Security | Spring Security, JWT, BCrypt |
+|---|---|
+| Frontend | React 19, React Router v7, Axios, SweetAlert2 |
+| Build Tool | Vite 8 |
+| Backend | Spring Boot 4.0.3, Java 21 |
+| Security | Spring Security 6, JWT, BCrypt |
 | ORM | Spring Data JPA, Hibernate |
 | Database | MySQL 8+ |
-| Frontend | HTML, CSS, JavaScript (ES Modules) |
-| Build Tool | Maven 3.9+ |
-| API Testing | Postman |
+| Build | Maven 3.9+ |
 
-## Application Modules
+---
 
-### 1. Authentication
+## Architecture
 
-- Register student and recruiter accounts (with skills chip autocomplete for students)
-- Login with JWT token generation
-- Fetch current authenticated user (`/api/auth/me`)
-- Session stored in `localStorage`; flash messages via `sessionStorage`
+```
+frontend/          ← Vite + React SPA (port 5173 in dev)
+│  └── /api/*      → proxied to Spring Boot (port 8080)
+│
+backend/           ← Spring Boot REST API (port 8080)
+│  └── /api/*      → controllers → services → repositories → MySQL
+```
 
-### 2. Student Profile Management
+The frontend dev server proxies all `/api` requests to the backend — no CORS configuration needed during development. In production, serve the Vite build from any static host and point it at the deployed backend.
 
-- View profile with avatar initials and skill tag chips
-- Update skills, resume link, and branch
-- View available and eligible jobs
-- Track application pipeline (Applied → In Review → Shortlisted → Selected)
+### Backend Layer Model
 
-### 3. Company Management
+```
+Controller → Service → ServiceImpl → Repository → JPA Entity → MySQL
+```
 
-- Add company (Admin only)
-- View company directory
-- Company logo initials displayed in cards
+- All API responses wrapped in a uniform `ApiResponse<T>` envelope
+- DTOs enforce API contracts and shield entities from direct exposure
+- `GlobalExceptionHandler` catches validation, business, and 404 errors and returns structured JSON
+- `@PreAuthorize` annotations + Spring Security method security enforce role checks at the service boundary
 
-### 4. Job Management
+---
 
-- Post and edit jobs (Recruiter / Admin)
-- View and filter all jobs by title, company, eligibility, and status
-- Delete job postings
+## Features
 
-### 5. Application Management
+### Authentication
+- Register as Student or Recruiter
+- JWT login — token stored in `localStorage`, injected into every request via Axios interceptor
+- Auto-redirect to `/login` on 401; role-based redirect after login
 
-- Apply for a job with one click
-- View personal applications with status pipeline visualization
-- Update application status (Recruiter / Admin)
+### Student
+- Profile: branch, CGPA, skills (comma-separated), PDF resume upload (max 2 MB)
+- Browse all active job listings with title search, company filter, and status filter
+- Bookmark / un-bookmark jobs (optimistic UI)
+- One-click apply
+- Application tracking with an animated timeline (Applied → Under Review → Shortlisted → Interview → Offered / Rejected)
 
-## Frontend Pages
+### Recruiter / Admin
+- Create and manage job postings (title, company, location, salary package, deadline, eligibility, description)
+- Activate / deactivate jobs
+- View per-job applicant pipeline in a table with inline status updates
+- Export applicant list to CSV
+- Admin-only: add companies to the directory
 
-The frontend is served directly by Spring Boot from `src/main/resources/static`.
+### Notifications
+- Bell icon in topbar polls unread count every 30 seconds
+- Click to load and mark all notifications as read
+- Dropdown lists message + timestamp
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Landing page — hero, features, how it works, CTA |
-| `/login.html` | Dedicated login page |
-| `/register.html` | Dedicated registration page with skills chip autocomplete |
-| `/jobs.html` | Public and authenticated job listings with filters |
-| `/student-dashboard.html` | Student profile, stats, open roles, and application tracker |
-| `/recruiter-dashboard.html` | Recruiter / admin management workspace |
-| `/applications.html` | Student application tracking and recruiter status updates |
-
-### Frontend Design System
-
-- Dark theme — base color `#07101f`, surface `#0f1d32`, accent `#6366f1` (indigo), `#06b6d4` (cyan)
-- Left sidebar with SVG-icon navigation (role-based links)
-- Top navbar with notification bell and user avatar chip
-- Fully responsive — sidebar collapses to hamburger on mobile
-- Smooth hover lifts, transitions, and skeleton loaders
-- ES Module JS — `api.js` (shared API layer), `common.js` (layout/UI helpers), page-specific JS files
+---
 
 ## Project Structure
 
-```text
+```
 Placify/
+├── backend/                         ← Spring Boot
+│   └── src/main/
+│       ├── java/com/placify/
+│       │   ├── config/
+│       │   │   ├── CorsConfig.java
+│       │   │   ├── DataInitializer.java
+│       │   │   ├── PasswordConfig.java
+│       │   │   └── SecurityConfig.java
+│       │   ├── controller/
+│       │   │   ├── ApplicationController.java
+│       │   │   ├── AuthController.java
+│       │   │   ├── CompanyController.java
+│       │   │   ├── JobController.java
+│       │   │   ├── NotificationController.java
+│       │   │   ├── RecruiterProfileController.java
+│       │   │   ├── StudentController.java
+│       │   │   └── UserController.java
+│       │   ├── dto/                 ← request/response contracts
+│       │   ├── entity/
+│       │   │   ├── Application.java
+│       │   │   ├── Company.java
+│       │   │   ├── Job.java
+│       │   │   ├── Notification.java
+│       │   │   ├── RecruiterProfile.java
+│       │   │   ├── SavedJob.java
+│       │   │   ├── Student.java
+│       │   │   └── User.java
+│       │   ├── enums/
+│       │   │   ├── ApplicationStatus.java
+│       │   │   ├── NotificationType.java
+│       │   │   └── Role.java
+│       │   ├── exception/
+│       │   ├── repository/
+│       │   ├── security/            ← JWT filter, UserDetailsService
+│       │   ├── service/
+│       │   │   └── impl/
+│       │   └── PlacifyApplication.java
+│       └── resources/
+│           ├── application.properties
+│           └── static/images/       ← Logo served at /images/Logo.png
+│
+├── frontend/                        ← Vite + React
+│   ├── src/
+│   │   ├── api/index.js             ← Axios instance + all API calls
+│   │   ├── context/AuthContext.jsx  ← global auth state
+│   │   ├── hooks/useToast.js        ← SweetAlert2 toast + confirm
+│   │   ├── components/
+│   │   │   ├── Layout.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── Topbar.jsx
+│   │   │   └── ProtectedRoute.jsx
+│   │   ├── pages/
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── RegisterPage.jsx
+│   │   │   ├── StudentDashboard.jsx
+│   │   │   ├── RecruiterDashboard.jsx
+│   │   │   ├── JobsPage.jsx
+│   │   │   ├── ApplicationsPage.jsx
+│   │   │   ├── StudentProfile.jsx
+│   │   │   └── RecruiterProfile.jsx
+│   │   ├── App.jsx                  ← React Router routes
+│   │   ├── main.jsx                 ← entry point
+│   │   └── index.css                ← full design system
+│   ├── vite.config.js
+│   └── package.json
+│
 ├── database/
 │   ├── 01_reset_placify_schema.sql
 │   ├── 03_seed_placify_data.sql
 │   └── 04_login_credentials.md
-├── src/
-│   └── main/
-│       ├── java/
-│       │   └── com/placify/
-│       │       ├── config/
-│       │       │   ├── DataInitializer.java
-│       │       │   ├── PasswordConfig.java
-│       │       │   └── SecurityConfig.java
-│       │       ├── controller/
-│       │       │   ├── ApplicationController.java
-│       │       │   ├── AuthController.java
-│       │       │   ├── CompanyController.java
-│       │       │   ├── JobController.java
-│       │       │   ├── StudentController.java
-│       │       │   └── UserController.java
-│       │       ├── dto/
-│       │       │   ├── application/
-│       │       │   ├── auth/
-│       │       │   ├── common/
-│       │       │   ├── company/
-│       │       │   ├── job/
-│       │       │   ├── student/
-│       │       │   └── user/
-│       │       ├── entity/
-│       │       │   ├── Application.java
-│       │       │   ├── BaseEntity.java
-│       │       │   ├── Company.java
-│       │       │   ├── Job.java
-│       │       │   ├── Student.java
-│       │       │   └── User.java
-│       │       ├── enums/
-│       │       │   ├── ApplicationStatus.java
-│       │       │   └── Role.java
-│       │       ├── exception/
-│       │       │   ├── BadRequestException.java
-│       │       │   ├── GlobalExceptionHandler.java
-│       │       │   └── ResourceNotFoundException.java
-│       │       ├── repository/
-│       │       ├── security/
-│       │       │   ├── CustomUserDetailsService.java
-│       │       │   ├── JwtAuthenticationFilter.java
-│       │       │   ├── JwtUtil.java
-│       │       │   ├── RestAccessDeniedHandler.java
-│       │       │   └── RestAuthenticationEntryPoint.java
-│       │       ├── service/
-│       │       │   └── impl/
-│       │       └── PlacifyApplication.java
-│       └── resources/
-│           ├── application.properties
-│           └── static/
-│               ├── css/
-│               │   └── styles.css
-│               ├── images/
-│               │   └── Logo.png
-│               ├── js/
-│               │   ├── api.js
-│               │   ├── applications-page.js
-│               │   ├── common.js
-│               │   ├── jobs-page.js
-│               │   ├── landing-page.js
-│               │   ├── login-page.js
-│               │   ├── recruiter-dashboard.js
-│               │   ├── register-page.js
-│               │   └── student-dashboard.js
-│               ├── applications.html
-│               ├── favicon.svg
-│               ├── index.html
-│               ├── jobs.html
-│               ├── login.html
-│               ├── register.html
-│               ├── recruiter-dashboard.html
-│               └── student-dashboard.html
-└── pom.xml
+└── Placify.postman_collection.json
 ```
+
+---
 
 ## Domain Model
 
-| Entity | Key Fields | Relationship Summary |
-| --- | --- | --- |
-| `User` | `id`, `name`, `email`, `password`, `role` | One-to-one with `Student` |
-| `Student` | `skills`, `resume`, `branch` | Linked to `User`, one-to-many with `Application` |
-| `Company` | `name`, `industry`, `website`, `location`, `description` | One-to-many with `Job` |
-| `Job` | `title`, `description`, `eligibility`, `location`, `salaryPackage` | Many-to-one with `Company`, one-to-many with `Application` |
-| `Application` | `student`, `job`, `status` | Links one student to one job |
+| Entity | Key Fields | Notes |
+|---|---|---|
+| `User` | id, name, email, password, role | Central identity entity |
+| `Student` | branch, cgpa, skills, resume | One-to-one with `User` |
+| `RecruiterProfile` | company, position, experienceYears, linkedIn, bio | One-to-one with `User` |
+| `Company` | name, description | One-to-many with `Job` |
+| `Job` | title, description, eligibility, location, salaryPackage, applicationDeadline, active | Many-to-one with `Company` |
+| `Application` | student, job, status | Status: `APPLIED → IN_REVIEW → SHORTLISTED → INTERVIEW → SELECTED / REJECTED` |
+| `SavedJob` | student, job | Bookmark relationship |
+| `Notification` | user, message, type, read | Generated on status changes |
 
-## API Summary
+---
 
-### Auth APIs
+## API Reference
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
+### Auth
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/api/auth/register` | Public |
+| POST | `/api/auth/login` | Public |
+| GET | `/api/auth/me` | Authenticated |
 
-### Student APIs
+### Student
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/students/me` | STUDENT |
+| PUT | `/api/students/me` | STUDENT |
+| POST | `/api/students/me/resume` | STUDENT |
 
-- `GET /api/students/me`
-- `PUT /api/students/me`
-- `GET /api/students/me/jobs/available`
+### Recruiter Profile
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/recruiters/me` | RECRUITER, ADMIN |
+| PUT | `/api/recruiters/me` | RECRUITER, ADMIN |
 
-### Company APIs
+### Companies
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/companies` | Authenticated |
+| POST | `/api/companies` | ADMIN |
 
-- `POST /api/companies`
-- `GET /api/companies`
-- `GET /api/companies/{companyId}`
-- `PUT /api/companies/{companyId}`
-- `DELETE /api/companies/{companyId}`
+### Jobs
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/jobs` | Authenticated |
+| POST | `/api/jobs` | RECRUITER, ADMIN |
+| PUT | `/api/jobs/{id}` | RECRUITER, ADMIN |
+| DELETE | `/api/jobs/{id}` | RECRUITER, ADMIN |
+| PATCH | `/api/jobs/{id}/toggle` | RECRUITER, ADMIN |
 
-### Job APIs
+### Applications
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/applications/my` | STUDENT |
+| POST | `/api/applications` | STUDENT |
+| GET | `/api/applications` | RECRUITER, ADMIN |
+| GET | `/api/applications/job/{jobId}` | RECRUITER, ADMIN |
+| PATCH | `/api/applications/{id}/status` | RECRUITER, ADMIN |
 
-- `POST /api/jobs`
-- `GET /api/jobs`
-- `GET /api/jobs/{jobId}`
-- `GET /api/jobs/company/{companyId}`
-- `PUT /api/jobs/{jobId}`
-- `DELETE /api/jobs/{jobId}`
+### Saved Jobs
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/saved-jobs/ids` | STUDENT |
+| POST | `/api/saved-jobs/{jobId}` | STUDENT |
+| DELETE | `/api/saved-jobs/{jobId}` | STUDENT |
 
-### Application APIs
+### Notifications
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/notifications` | Authenticated |
+| GET | `/api/notifications/unread-count` | Authenticated |
+| PATCH | `/api/notifications/mark-all-read` | Authenticated |
 
-- `POST /api/applications`
-- `GET /api/applications`
-- `GET /api/applications/{applicationId}`
-- `GET /api/applications/my`
-- `GET /api/applications/student/{studentId}`
-- `GET /api/applications/job/{jobId}`
-- `PATCH /api/applications/{applicationId}/status`
-- `DELETE /api/applications/{applicationId}`
-
-## Security Rules
-
-| Endpoint Area | Allowed Role |
-| --- | --- |
-| Company create / update / delete | `ADMIN` |
-| Job create / update / delete | `ADMIN`, `RECRUITER` |
-| Apply for jobs | `STUDENT` |
-| View own applications | `STUDENT` |
-| View all applications / update status | `ADMIN`, `RECRUITER` |
-| View applications by student / delete application | `ADMIN` |
-| Static assets (`/`, `/*.html`, `/css/**`, `/js/**`, `/images/**`) | Public |
-
-## Database Setup
-
-### Application Configuration
-
-Main config file: `src/main/resources/application.properties`
-
-The project supports environment-variable-based database configuration:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/placify?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=${PLACIFY_DB_USERNAME:root}
-spring.datasource.password=${PLACIFY_DB_PASSWORD:}
-```
-
-For local execution, either:
-
-- Set environment variables `PLACIFY_DB_USERNAME` and `PLACIFY_DB_PASSWORD`
-- Or update `application.properties` directly with your local MySQL credentials
-
-The database (`placify`) is created automatically if it does not exist.
-
-### Database Scripts
-
-| File | Purpose |
-| --- | --- |
-| `database/01_reset_placify_schema.sql` | Drop and recreate the schema |
-| `database/03_seed_placify_data.sql` | Insert the approved professional demo dataset |
-| `database/04_login_credentials.md` | Presentation-ready login accounts |
+---
 
 ## Quick Start
 
@@ -324,143 +252,113 @@ The database (`placify`) is created automatically if it does not exist.
 
 - Java 21 (Temurin recommended)
 - Maven 3.9+
-- MySQL 8+ running locally
+- MySQL 8+ running on `localhost:3306`
+- Node.js 18+ and npm
 
-### 1. Clone the Repository
+### 1. Clone
 
 ```bash
 git clone https://github.com/Kumar-Aditya-Singh/Placify.git
 cd Placify
 ```
 
-### 2. Configure MySQL
+### 2. Configure the database
 
-Make sure MySQL is running on `localhost:3306`.
-
-The database is created automatically on first run. If you prefer to create it manually:
-
-```sql
-CREATE DATABASE placify CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-Update `application.properties` if your MySQL root password is not empty:
-
-```properties
-spring.datasource.password=your_password_here
-```
-
-### 3. Build the Project
+The database is created automatically on first run. If your MySQL root password is not empty, set it:
 
 ```bash
-mvn clean compile
+# Linux / macOS
+export PLACIFY_DB_PASSWORD=your_password
+
+# Windows PowerShell
+$env:PLACIFY_DB_PASSWORD = "your_password"
 ```
 
-### 4. Run the Application
+Or edit `backend/src/main/resources/application.properties` directly.
+
+### 3. Start the backend
 
 ```bash
+cd backend
 mvn spring-boot:run
 ```
 
-If port `8080` is occupied:
+The API will be available at `http://localhost:8080`.  
+Seed data (companies, jobs, demo accounts) loads automatically on first startup.
+
+### 4. Start the frontend
+
+Open a second terminal:
 
 ```bash
-mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081
+cd frontend
+npm install
+npm run dev
 ```
 
-### 5. Open in Browser
+The React app will be available at `http://localhost:5173`.  
+All `/api` requests are proxied to the backend — no CORS setup needed.
 
-```text
-http://localhost:8080
-```
-
-You will see the Placify landing page. Register a new account or use the demo credentials below.
-
-## VS Code Run Tasks
-
-The project includes helper PowerShell scripts and VS Code tasks:
-
-- `run-placify.ps1` — starts the application
-- `stop-placify.ps1` — stops the running process
-
-Use via VS Code:
-
-1. `Terminal → Run Task`
-2. Choose `Run Placify`
-
-To stop: choose `Stop Placify`, or press `Ctrl + C` in the active terminal.
+---
 
 ## Demo Accounts
 
-Seeded demo credentials are documented in `database/04_login_credentials.md`.
-
 | Role | Email | Password |
-| --- | --- | --- |
+|---|---|---|
 | Admin | `admin@placify.com` | `Admin@Placify2026` |
 | Recruiter | `recruiter.microsoft@placify.com` | `Recruiter@Placify2026` |
 | Student | `ananya.gupta@placify.com` | `Student@Placify2026` |
 
-> Seed data is disabled by default. Set `PLACIFY_SEED_ENABLED=true` (or update `application.properties`) to load demo data on startup.
+> Seed data is controlled by `app.seed.enabled` in `application.properties` (default: `true`).
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `PLACIFY_DB_USERNAME` | `root` | MySQL username |
+| `PLACIFY_DB_PASSWORD` | *(empty)* | MySQL password |
+| `PLACIFY_SERVER_PORT` | `8080` | Backend port |
+| `PLACIFY_JWT_SECRET` | *(built-in)* | JWT signing key — change in production |
+| `PLACIFY_JWT_EXPIRATION_MS` | `86400000` | Token TTL (24 h) |
+| `PLACIFY_SEED_ENABLED` | `true` | Load demo data on startup |
+| `PLACIFY_UPLOAD_DIR` | `./uploads` | PDF resume storage directory |
+
+---
+
+## Frontend Design System
+
+The entire UI is driven by a single `index.css` design system — no Tailwind, no component library.
+
+- **Palette** — base `#07101f`, surface `#0f1d32`, accent indigo `#6366f1`, cyan `#06b6d4`
+- **Type** — Inter (body) + Sora (headings)
+- **Shell** — fixed sidebar (240 px) + topbar (64 px) + scrollable `page-content`
+- **Cards** — `panel`, `card`, `jcard`, `appcard`, `rjcard`, `scard` — each with hover lifts and border transitions
+- **Auth pages** — centered card with fixed glass topbar, radial gradient background
+- **Responsive** — sidebar collapses to overlay on mobile (hamburger toggle in topbar)
+- **Animations** — `rise-in` keyframe on all major cards and panels
+
+---
+
+## Database Scripts
+
+| File | Purpose |
+|---|---|
+| `database/01_reset_placify_schema.sql` | Drop and recreate the `placify` schema |
+| `database/03_seed_placify_data.sql` | Insert demo companies, jobs, and accounts |
+| `database/04_login_credentials.md` | Presentation-ready credential sheet |
+
+---
 
 ## Postman Collection
 
-Collection file: `Placify.postman_collection.json`
+Import `Placify.postman_collection.json` for a complete API test suite.
 
-Suggested demo order:
-
-1. Login and capture JWT token
-2. List companies
-3. Create or view jobs
-4. Log in as student
-5. Apply for a job
-6. Track application status
-
-## Project Assets
-
-| Asset | Path |
-| --- | --- |
-| Database schema reset | `database/01_reset_placify_schema.sql` |
-| Seed SQL | `database/03_seed_placify_data.sql` |
-| Login credentials | `database/04_login_credentials.md` |
-| Postman collection | `Placify.postman_collection.json` |
-
-## Verification Status
-
-Verified during development:
-
-- Project compiles successfully
-- Spring Boot starts against MySQL (`placify` database)
-- JWT login works for all three roles
-- Protected routes enforce role restrictions
-- Static assets served correctly (logo, CSS, JS)
-- Landing page with hero, features, how-it-works, and CTA sections
-- Separate login and register pages with skills chip autocomplete
-- Student workflow: register → view jobs → apply → track pipeline
-- Recruiter workflow: post job → manage listings → review applicants
-- Admin workflow: manage companies → oversee jobs and applications
-- Responsive layout — sidebar collapses on mobile
-
-## Future Enhancements
-
-- Interview scheduling and calendar integration
-- Email notifications for status changes
-- Resume file upload and parsing
-- Analytics dashboard with placement statistics
-- Pagination and advanced filtering
-- AI-assisted job recommendations based on student skills
-- Cloud deployment and CI/CD pipeline
-- Dark / light theme toggle
-
-## Repository Notes
-
-This repository is intended to present the project professionally for:
-
-- Final-year major project evaluation
-- GitHub portfolio visibility
-- Technical demonstration of secure full-stack development
-
-Recommended next additions to strengthen the repo further:
-
-- Screenshots of the landing page and dashboards in this README
-- A short project demo video link
-- A `LICENSE` file
-- Deployment screenshots or a live demo link
+Suggested flow:
+1. `POST /api/auth/login` → copy JWT
+2. Set `Authorization: Bearer <token>` header
+3. `GET /api/companies` → verify seed data
+4. `POST /api/jobs` → post a job as recruiter
+5. Login as student → `POST /api/applications` → apply
+6. Login as recruiter → `PATCH /api/applications/{id}/status` → move pipeline
