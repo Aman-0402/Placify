@@ -9,23 +9,44 @@ import {
 import {
     consumeFlashInto,
     emptyState,
-    hideMessage,
     initializeLayout,
     renderLoadingCards,
     renderLoadingSummary,
     setPageBusy,
-    setButtonBusy,
-    showMessage
+    setButtonBusy
 } from "./common.js";
+
+const ALL_STATUSES = ["APPLIED", "IN_REVIEW", "SHORTLISTED", "INTERVIEW", "SELECTED", "REJECTED"];
+
+const STATUS_LABELS = {
+    APPLIED: "Applied",
+    IN_REVIEW: "Under Review",
+    SHORTLISTED: "Shortlisted",
+    INTERVIEW: "Interview",
+    SELECTED: "Selected",
+    REJECTED: "Rejected"
+};
 
 const state = {
     user: null,
     companies: [],
     jobs: [],
-    applications: []
+    applications: [],
+    pipeline: { jobId: null, jobTitle: "", applications: [] }
 };
 
-const messageElement = document.getElementById("pageMessage");
+function toast(icon, title) {
+    Swal.fire({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+        icon,
+        title
+    });
+}
+
 const statsGrid = document.getElementById("statsGrid");
 const managerSummary = document.getElementById("managerSummary");
 const companiesList = document.getElementById("companiesList");
@@ -38,6 +59,11 @@ const cancelEditButton = document.getElementById("cancelEditButton");
 const jobCompanyId = document.getElementById("jobCompanyId");
 const managedJobsGrid = document.getElementById("managedJobsGrid");
 const applicationPreviewGrid = document.getElementById("applicationPreviewGrid");
+const pipelinePanel = document.getElementById("pipelinePanel");
+const pipelineTitle = document.getElementById("pipelineTitle");
+const pipelineContent = document.getElementById("pipelineContent");
+const exportCsvBtn = document.getElementById("exportCsvBtn");
+const closePipelineBtn = document.getElementById("closePipelineBtn");
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -51,7 +77,6 @@ async function init() {
 
     state.user = user;
     initializeLayout("dashboard", user);
-    consumeFlashInto(messageElement);
     configureRoleView();
     bindEvents();
     renderLoadingSummary(managerSummary, 3);
@@ -72,7 +97,6 @@ function configureRoleView() {
         companyHint.classList.add("hidden");
         return;
     }
-
     companyForm.classList.add("hidden");
     companyHint.classList.remove("hidden");
 }
@@ -81,6 +105,9 @@ function bindEvents() {
     companyForm.addEventListener("submit", saveCompany);
     jobForm.addEventListener("submit", saveJob);
     managedJobsGrid.addEventListener("click", handleJobActions);
+    closePipelineBtn.addEventListener("click", closePipeline);
+    exportCsvBtn.addEventListener("click", exportCsv);
+    pipelineContent.addEventListener("change", handleStatusChange);
     cancelEditButton.addEventListener("click", resetJobForm);
 }
 
@@ -103,17 +130,11 @@ async function loadDashboard() {
         renderApplicationsPreview();
         renderStatsBar();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     }
 }
 
 function renderManagerSummary() {
-    const initials = state.user.name
-        .split(" ")
-        .slice(0, 2)
-        .map((p) => p.charAt(0))
-        .join("");
-
     managerSummary.innerHTML = `
         <div class="db-snap-item">
             <div class="db-snap-icon indigo">
@@ -158,10 +179,9 @@ function populateCompanies() {
         jobCompanyId.innerHTML = '<option value="">No companies available</option>';
         return;
     }
-
-    jobCompanyId.innerHTML = state.companies.map((company) => `
-        <option value="${company.id}">${escapeHtml(company.name)}</option>
-    `).join("");
+    jobCompanyId.innerHTML = state.companies
+        .map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`)
+        .join("");
 }
 
 function renderCompanies() {
@@ -169,16 +189,18 @@ function renderCompanies() {
         companiesList.innerHTML = emptyState("No companies available yet.");
         return;
     }
-
-    companiesList.innerHTML = state.companies.map((company) => `
+    companiesList.innerHTML = state.companies
+        .map(
+            (c) => `
         <div class="co-card">
-            <div class="co-card-logo">${escapeHtml(company.name.charAt(0))}</div>
+            <div class="co-card-logo">${escapeHtml(c.name.charAt(0))}</div>
             <div class="co-card-info">
-                <div class="co-card-name">${escapeHtml(company.name)}</div>
-                <div class="co-card-desc">${escapeHtml(truncate(company.description, 100))}</div>
+                <div class="co-card-name">${escapeHtml(c.name)}</div>
+                <div class="co-card-desc">${escapeHtml(truncate(c.description, 100))}</div>
             </div>
-        </div>
-    `).join("");
+        </div>`
+        )
+        .join("");
 }
 
 function renderJobs() {
@@ -187,7 +209,10 @@ function renderJobs() {
         return;
     }
 
-    const jobCards = state.jobs.slice(0, 8).map((job) => `
+    const jobCards = state.jobs
+        .slice(0, 12)
+        .map(
+            (job) => `
         <article class="rjcard">
             <div class="rjcard-head">
                 <div class="chip-row">
@@ -195,12 +220,20 @@ function renderJobs() {
                     <span class="micro-pill">${escapeHtml(job.companyName)}</span>
                 </div>
                 <div class="rjcard-title">${escapeHtml(job.title)}</div>
-                <div class="rjcard-desc">${escapeHtml(truncate(job.description, 130))}</div>
+                <div class="rjcard-desc">${escapeHtml(truncate(job.description, 120))}</div>
             </div>
             <div class="rjcard-meta">
                 <div class="rjcard-meta-item">
-                    <span class="rjcard-meta-label">Eligibility</span>
-                    <span class="rjcard-meta-value">${escapeHtml(job.eligibility)}</span>
+                    <span class="rjcard-meta-label">Location</span>
+                    <span class="rjcard-meta-value">${escapeHtml(job.location || "—")}</span>
+                </div>
+                <div class="rjcard-meta-item">
+                    <span class="rjcard-meta-label">Package</span>
+                    <span class="rjcard-meta-value">${escapeHtml(job.salaryPackage || "—")}</span>
+                </div>
+                <div class="rjcard-meta-item">
+                    <span class="rjcard-meta-label">Deadline</span>
+                    <span class="rjcard-meta-value">${job.applicationDeadline ? escapeHtml(job.applicationDeadline) : "—"}</span>
                 </div>
                 <div class="rjcard-meta-item">
                     <span class="rjcard-meta-label">Posted</span>
@@ -209,11 +242,15 @@ function renderJobs() {
             </div>
             <div class="rjcard-actions">
                 <button class="button secondary sm" data-edit-job="${job.id}" type="button">Edit</button>
+                <button class="button ${job.active ? "ghost" : "secondary"} sm" data-toggle-job="${job.id}" type="button">
+                    ${job.active ? "Deactivate" : "Activate"}
+                </button>
+                <button class="button ghost sm" data-pipeline-job="${job.id}" data-pipeline-title="${escapeHtml(job.title)}" type="button">Applicants</button>
                 <button class="button danger sm" data-delete-job="${job.id}" type="button">Delete</button>
-                <a class="button ghost sm" href="/applications.html?jobId=${job.id}">Applicants</a>
             </div>
-        </article>
-    `).join("");
+        </article>`
+        )
+        .join("");
 
     managedJobsGrid.innerHTML = `<div class="cards-grid">${jobCards}</div>`;
 }
@@ -224,14 +261,15 @@ function renderApplicationsPreview() {
         return;
     }
 
-    const appCards = state.applications.slice(0, 6).map((app) => {
-        const initials = app.studentName
-            .split(" ")
-            .slice(0, 2)
-            .map((p) => p.charAt(0))
-            .join("");
-
-        return `
+    const appCards = state.applications
+        .slice(0, 6)
+        .map((app) => {
+            const initials = app.studentName
+                .split(" ")
+                .slice(0, 2)
+                .map((p) => p.charAt(0))
+                .join("");
+            return `
         <article class="racard">
             <div class="racard-top">
                 <div class="racard-student">
@@ -241,7 +279,7 @@ function renderApplicationsPreview() {
                         <div class="racard-job">${escapeHtml(app.jobTitle)} &bull; ${escapeHtml(app.companyName)}</div>
                     </div>
                 </div>
-                <span class="status-pill ${statusTone(app.status)}">${escapeHtml(titleCase(app.status))}</span>
+                <span class="status-pill ${statusTone(app.status)}">${escapeHtml(STATUS_LABELS[app.status] || titleCase(app.status))}</span>
             </div>
             <div class="racard-meta">
                 <div class="racard-meta-item">
@@ -249,13 +287,13 @@ function renderApplicationsPreview() {
                     <span class="racard-meta-val">${escapeHtml(formatDateTime(app.createdAt))}</span>
                 </div>
                 <div class="racard-meta-item">
-                    <span class="racard-meta-key">Status</span>
-                    <span class="racard-meta-val">${escapeHtml(titleCase(app.status))}</span>
+                    <span class="racard-meta-key">Branch</span>
+                    <span class="racard-meta-val">${escapeHtml(app.studentBranch || "—")}</span>
                 </div>
             </div>
-        </article>
-        `;
-    }).join("");
+        </article>`;
+        })
+        .join("");
 
     applicationPreviewGrid.innerHTML = `<div class="cards-grid">${appCards}</div>`;
 }
@@ -312,15 +350,11 @@ function renderStatsBar() {
 
 async function saveCompany(event) {
     event.preventDefault();
-    hideMessage(messageElement);
-
     if (state.user.role !== "ADMIN") {
-        showMessage(messageElement, "Only admins can add companies.", "error");
+        toast("error", "Only admins can add companies.");
         return;
     }
-
     setButtonBusy(companyButton, true, "Saving...");
-
     try {
         await apiRequest("/api/companies", {
             method: "POST",
@@ -329,12 +363,11 @@ async function saveCompany(event) {
                 description: document.getElementById("companyDescription").value.trim()
             }
         });
-
         companyForm.reset();
-        showMessage(messageElement, "Company added successfully.", "success");
+        toast("success", "Company added successfully.");
         await loadDashboard();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     } finally {
         setButtonBusy(companyButton, false);
     }
@@ -342,18 +375,17 @@ async function saveCompany(event) {
 
 async function saveJob(event) {
     event.preventDefault();
-    hideMessage(messageElement);
-
-    if (!document.getElementById("jobCompanyId").value) {
-        showMessage(messageElement, "Add a company first before posting a job.", "error");
+    if (!jobCompanyId.value) {
+        toast("error", "Add a company first before posting a job.");
         return;
     }
 
-    setButtonBusy(jobButton, true, document.getElementById("jobId").value ? "Updating..." : "Posting...");
-
     const jobId = document.getElementById("jobId").value;
+    setButtonBusy(jobButton, true, jobId ? "Updating..." : "Posting...");
+
     const path = jobId ? `/api/jobs/${jobId}` : "/api/jobs";
     const method = jobId ? "PUT" : "POST";
+    const deadline = document.getElementById("jobDeadline").value;
 
     try {
         await apiRequest(path, {
@@ -361,81 +393,262 @@ async function saveJob(event) {
             body: {
                 title: document.getElementById("jobTitle").value.trim(),
                 description: document.getElementById("jobDescription").value.trim(),
-                companyId: Number(document.getElementById("jobCompanyId").value),
-                eligibility: document.getElementById("jobEligibility").value.trim()
+                companyId: Number(jobCompanyId.value),
+                eligibility: document.getElementById("jobEligibility").value.trim(),
+                location: document.getElementById("jobLocation").value.trim() || null,
+                salaryPackage: document.getElementById("jobSalary").value.trim() || null,
+                applicationDeadline: deadline || null
             }
         });
 
         resetJobForm();
-        showMessage(messageElement, jobId ? "Job updated successfully." : "Job posted successfully.", "success");
+        toast("success", jobId ? "Job updated successfully." : "Job posted successfully.");
         await loadDashboard();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     } finally {
         setButtonBusy(jobButton, false);
     }
 }
 
 async function handleJobActions(event) {
-    const editButton = event.target.closest("[data-edit-job]");
-    const deleteButton = event.target.closest("[data-delete-job]");
+    const editBtn = event.target.closest("[data-edit-job]");
+    const toggleBtn = event.target.closest("[data-toggle-job]");
+    const pipelineBtn = event.target.closest("[data-pipeline-job]");
+    const deleteBtn = event.target.closest("[data-delete-job]");
 
-    if (editButton) {
-        const jobId = Number(editButton.dataset.editJob);
-        populateJobForm(jobId);
+    if (editBtn) {
+        populateJobForm(Number(editBtn.dataset.editJob));
         return;
     }
 
-    if (!deleteButton) {
+    if (toggleBtn) {
+        await toggleJobActive(Number(toggleBtn.dataset.toggleJob));
         return;
     }
 
-    const jobId = Number(deleteButton.dataset.deleteJob);
-    if (!window.confirm("Delete this job posting? This cannot be undone.")) {
+    if (pipelineBtn) {
+        await openPipeline(Number(pipelineBtn.dataset.pipelineJob), pipelineBtn.dataset.pipelineTitle);
         return;
     }
+
+    if (deleteBtn) {
+        await deleteJob(Number(deleteBtn.dataset.deleteJob));
+    }
+}
+
+async function toggleJobActive(jobId) {
+    try {
+        const res = await apiRequest(`/api/jobs/${jobId}/toggle`, { method: "PATCH" });
+        const updated = res.data;
+        state.jobs = state.jobs.map((j) => (j.id === jobId ? updated : j));
+        renderJobs();
+        renderStatsBar();
+        renderManagerSummary();
+        toast("success", updated.active ? "Job activated." : "Job deactivated.");
+    } catch (error) {
+        toast("error", error.message);
+    }
+}
+
+async function deleteJob(jobId) {
+    const confirmed = await Swal.fire({
+        title: "Delete this job?",
+        text: "This cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        confirmButtonColor: "#ef4444",
+        cancelButtonText: "Cancel"
+    });
+    if (!confirmed.isConfirmed) return;
 
     try {
-        await apiRequest(`/api/jobs/${jobId}`, {method: "DELETE"});
-        showMessage(messageElement, "Job deleted successfully.", "success");
+        await apiRequest(`/api/jobs/${jobId}`, { method: "DELETE" });
+        toast("success", "Job deleted.");
+        if (state.pipeline.jobId === jobId) closePipeline();
         await loadDashboard();
     } catch (error) {
-        showMessage(messageElement, error.message, "error");
+        toast("error", error.message);
     }
 }
 
 function populateJobForm(jobId) {
-    const job = state.jobs.find((item) => item.id === jobId);
-    if (!job) {
-        return;
-    }
+    const job = state.jobs.find((j) => j.id === jobId);
+    if (!job) return;
 
     document.getElementById("jobId").value = job.id;
     document.getElementById("jobTitle").value = job.title;
     document.getElementById("jobDescription").value = job.description;
     document.getElementById("jobEligibility").value = job.eligibility;
     document.getElementById("jobCompanyId").value = String(job.companyId);
+    document.getElementById("jobLocation").value = job.location || "";
+    document.getElementById("jobSalary").value = job.salaryPackage || "";
+    document.getElementById("jobDeadline").value = job.applicationDeadline || "";
     jobButton.textContent = "Update Job";
     cancelEditButton.classList.remove("hidden");
-    window.scrollTo({top: 0, behavior: "smooth"});
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function resetJobForm() {
     jobForm.reset();
     document.getElementById("jobId").value = "";
     if (state.companies.length) {
-        document.getElementById("jobCompanyId").value = String(state.companies[0].id);
+        jobCompanyId.value = String(state.companies[0].id);
     }
     jobButton.textContent = "Post Job";
     cancelEditButton.classList.add("hidden");
 }
 
+async function openPipeline(jobId, jobTitleText) {
+    state.pipeline.jobId = jobId;
+    state.pipeline.jobTitle = jobTitleText;
+    pipelineTitle.textContent = `Applicants — ${jobTitleText}`;
+    pipelineContent.innerHTML = "<p style='padding:16px;color:var(--muted-light)'>Loading...</p>";
+    pipelinePanel.classList.remove("hidden");
+    pipelinePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    try {
+        const res = await apiRequest(`/api/applications/job/${jobId}`);
+        state.pipeline.applications = res.data || [];
+        renderPipeline();
+    } catch (error) {
+        pipelineContent.innerHTML = `<p style='padding:16px;color:var(--danger)'>${escapeHtml(error.message)}</p>`;
+    }
+}
+
+function closePipeline() {
+    pipelinePanel.classList.add("hidden");
+    state.pipeline = { jobId: null, jobTitle: "", applications: [] };
+}
+
+function renderPipeline() {
+    const apps = state.pipeline.applications;
+    if (!apps.length) {
+        pipelineContent.innerHTML = emptyState("No applications for this job yet.");
+        return;
+    }
+
+    const statusOptions = ALL_STATUSES.map(
+        (s) => `<option value="${s}">${STATUS_LABELS[s]}</option>`
+    ).join("");
+
+    const rows = apps
+        .map((app) => {
+            const initials = app.studentName
+                .split(" ")
+                .slice(0, 2)
+                .map((p) => p.charAt(0))
+                .join("");
+            return `
+            <tr>
+                <td>
+                    <div class="pl-student">
+                        <div class="pl-avatar">${escapeHtml(initials)}</div>
+                        <div>
+                            <div class="pl-name">${escapeHtml(app.studentName)}</div>
+                            <div class="pl-branch">${escapeHtml(app.studentBranch || "—")}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${escapeHtml(app.studentEmail || "—")}</td>
+                <td>${escapeHtml(app.studentBranch || "—")}</td>
+                <td>${app.studentCgpa != null ? app.studentCgpa : "—"}</td>
+                <td>
+                    <select data-app-id="${app.id}" data-current-status="${app.status}">
+                        ${ALL_STATUSES.map(
+                            (s) => `<option value="${s}" ${s === app.status ? "selected" : ""}>${STATUS_LABELS[s]}</option>`
+                        ).join("")}
+                    </select>
+                </td>
+                <td>${escapeHtml(formatDateTime(app.createdAt))}</td>
+            </tr>`;
+        })
+        .join("");
+
+    pipelineContent.innerHTML = `
+        <div class="pipeline-wrap">
+            <table class="pipeline-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>Branch</th>
+                        <th>CGPA</th>
+                        <th>Status</th>
+                        <th>Applied</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>`;
+}
+
+async function handleStatusChange(event) {
+    const select = event.target.closest("select[data-app-id]");
+    if (!select) return;
+
+    const appId = Number(select.dataset.appId);
+    const prevStatus = select.dataset.currentStatus;
+    const newStatus = select.value;
+    if (newStatus === prevStatus) return;
+
+    select.disabled = true;
+    try {
+        await apiRequest(`/api/applications/${appId}/status`, {
+            method: "PATCH",
+            body: { status: newStatus }
+        });
+        select.dataset.currentStatus = newStatus;
+        state.pipeline.applications = state.pipeline.applications.map((a) =>
+            a.id === appId ? { ...a, status: newStatus } : a
+        );
+        state.applications = state.applications.map((a) =>
+            a.id === appId ? { ...a, status: newStatus } : a
+        );
+        renderStatsBar();
+        toast("success", `Status updated to ${STATUS_LABELS[newStatus]}.`);
+    } catch (error) {
+        select.value = prevStatus;
+        toast("error", error.message);
+    } finally {
+        select.disabled = false;
+    }
+}
+
+function exportCsv() {
+    const apps = state.pipeline.applications;
+    if (!apps.length) {
+        toast("warning", "No applicants to export.");
+        return;
+    }
+
+    const header = ["Name", "Email", "Branch", "CGPA", "Status", "Applied At"];
+    const rows = apps.map((a) => [
+        a.studentName,
+        a.studentEmail || "",
+        a.studentBranch || "",
+        a.studentCgpa != null ? a.studentCgpa : "",
+        STATUS_LABELS[a.status] || a.status,
+        formatDateTime(a.createdAt)
+    ]);
+
+    const csv = [header, ...rows]
+        .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `applicants-${state.pipeline.jobTitle.replace(/\s+/g, "-")}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast("success", "CSV exported.");
+}
+
 function statusTone(status) {
-    if (status === "SELECTED" || status === "SHORTLISTED") {
-        return "success";
-    }
-    if (status === "REJECTED") {
-        return "danger";
-    }
+    if (status === "SELECTED" || status === "SHORTLISTED") return "success";
+    if (status === "REJECTED") return "danger";
     return "warning";
 }

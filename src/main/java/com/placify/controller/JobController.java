@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -107,6 +108,19 @@ public class JobController {
                 ApiResponse.<Void>builder()
                         .success(true)
                         .message("Job deleted successfully")
+                        .build()
+        );
+    }
+
+    @PatchMapping("/{jobId}/toggle")
+    @PreAuthorize("hasAnyRole('ADMIN','RECRUITER')")
+    public ResponseEntity<ApiResponse<JobResponse>> toggleActive(@PathVariable Long jobId,
+                                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(
+                ApiResponse.<JobResponse>builder()
+                        .success(true)
+                        .message("Job status toggled successfully")
+                        .data(jobService.toggleActive(jobId, userDetails.getUsername()))
                         .build()
         );
     }

@@ -1,5 +1,7 @@
 package com.placify.dto.job;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,4 +28,12 @@ public class JobRequest {
     @NotBlank(message = "Eligibility is required")
     @Size(max = 1000, message = "Eligibility must not exceed 1000 characters")
     private String eligibility;
+
+    @Size(max = 120, message = "Location must not exceed 120 characters")
+    private String location;
+
+    @Size(max = 50, message = "Salary package must not exceed 50 characters")
+    private String salaryPackage;
+
+    private LocalDate applicationDeadline;
 }

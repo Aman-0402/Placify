@@ -103,14 +103,29 @@ public class JobServiceImpl implements JobService {
         jobRepository.delete(getJobEntity(jobId));
     }
 
+    @Override
+    @Transactional
+    public JobResponse toggleActive(Long jobId, String email) {
+        getUserByEmail(email);
+        Job job = getJobEntity(jobId);
+        job.setActive(!job.isActive());
+        return mapJob(jobRepository.save(job));
+    }
+
     private void applyJobValues(Job job, JobRequest request, Company company, User currentUser) {
         job.setTitle(request.getTitle().trim());
         job.setDescription(request.getDescription().trim());
         job.setEligibility(request.getEligibility().trim());
         job.setEligibilityCriteria(request.getEligibility().trim());
-        job.setLocation(job.getLocation() != null ? job.getLocation() : "Remote");
-        job.setSalaryPackage(job.getSalaryPackage() != null ? job.getSalaryPackage() : "Confidential");
-        job.setApplicationDeadline(job.getApplicationDeadline() != null ? job.getApplicationDeadline() : LocalDate.now().plusDays(30));
+        job.setLocation(request.getLocation() != null && !request.getLocation().isBlank()
+                ? request.getLocation().trim()
+                : (job.getLocation() != null ? job.getLocation() : "Remote"));
+        job.setSalaryPackage(request.getSalaryPackage() != null && !request.getSalaryPackage().isBlank()
+                ? request.getSalaryPackage().trim()
+                : (job.getSalaryPackage() != null ? job.getSalaryPackage() : "Confidential"));
+        job.setApplicationDeadline(request.getApplicationDeadline() != null
+                ? request.getApplicationDeadline()
+                : (job.getApplicationDeadline() != null ? job.getApplicationDeadline() : LocalDate.now().plusDays(30)));
         job.setActive(true);
         job.setCompany(company);
         job.setRecruiter(job.getRecruiter() != null ? job.getRecruiter() : currentUser);

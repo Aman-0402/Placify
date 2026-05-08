@@ -8,6 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" href="/images/Logo.png">
     <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 </head>
 <body>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -58,8 +59,6 @@
         <!-- Page -->
         <main class="page-content">
             <div class="page-main">
-
-                <div class="alert hidden" id="pageMessage" role="status" aria-live="polite"></div>
 
                 <!-- Welcome banner -->
                 <section class="db-welcome">
@@ -129,6 +128,20 @@
                                     <select id="jobCompanyId" required></select>
                                 </label>
                             </div>
+                            <div class="form-grid-3">
+                                <label class="field">
+                                    <span>Location</span>
+                                    <input id="jobLocation" type="text" placeholder="Bengaluru / Remote">
+                                </label>
+                                <label class="field">
+                                    <span>Salary / Package</span>
+                                    <input id="jobSalary" type="text" placeholder="8–12 LPA">
+                                </label>
+                                <label class="field">
+                                    <span>Application Deadline</span>
+                                    <input id="jobDeadline" type="date">
+                                </label>
+                            </div>
                             <label class="field">
                                 <span>Eligibility</span>
                                 <input id="jobEligibility" type="text" placeholder="B.Tech CSE, 2026 batch, 7.0 CGPA+" required>
@@ -152,9 +165,23 @@
                             <p class="section-row-label">Your Postings</p>
                             <h2>Current job listings</h2>
                         </div>
-                        <a class="button secondary sm" href="/applications.html">Review Applications</a>
                     </div>
                     <div id="managedJobsGrid"></div>
+                </section>
+
+                <!-- Applicant pipeline (per job) -->
+                <section class="panel hidden" id="pipelinePanel">
+                    <div class="section-row">
+                        <div>
+                            <p class="section-row-label">Pipeline</p>
+                            <h2 id="pipelineTitle">Applicants</h2>
+                        </div>
+                        <div class="inline-actions">
+                            <button class="button secondary sm" id="exportCsvBtn" type="button">Export CSV</button>
+                            <button class="button ghost sm" id="closePipelineBtn" type="button">Close</button>
+                        </div>
+                    </div>
+                    <div id="pipelineContent"></div>
                 </section>
 
                 <!-- Applicant preview -->

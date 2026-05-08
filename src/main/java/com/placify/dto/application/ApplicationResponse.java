@@ -18,6 +18,9 @@ public class ApplicationResponse {
     private Long id;
     private Long studentId;
     private String studentName;
+    private String studentEmail;
+    private String studentBranch;
+    private Double studentCgpa;
     private Long jobId;
     private String jobTitle;
     private String companyName;

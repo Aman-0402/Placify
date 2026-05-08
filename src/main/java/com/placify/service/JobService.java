@@ -22,4 +22,6 @@ public interface JobService {
     JobResponse updateJob(Long jobId, String email, JobRequest request);
 
     void deleteJob(Long jobId, String email);
+
+    JobResponse toggleActive(Long jobId, String email);
 }
