@@ -97,17 +97,15 @@ export default function StudentDashboard() {
         ) : (
           <div className="cards-grid">
             {apps.slice(0, 6).map((app) => (
-              <article key={app.id} className="racard">
-                <div className="racard-top">
-                  <div className="racard-student">
-                    <div className="racard-avatar">{app.companyName?.charAt(0)}</div>
-                    <div><div className="racard-name">{app.jobTitle}</div><div className="racard-job">{app.companyName}</div></div>
+              <article key={app.id} className="appcard">
+                <div className="appcard-top">
+                  <div>
+                    <div className="appcard-title">{app.jobTitle}</div>
+                    <div className="appcard-company">{app.companyName}</div>
                   </div>
                   <span className={`status-pill ${statusTone(app.status)}`}>{STATUS_LABELS[app.status]}</span>
                 </div>
-                <div className="racard-meta">
-                  <div className="racard-meta-item"><span className="racard-meta-key">Applied</span><span className="racard-meta-val">{app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-IN') : '—'}</span></div>
-                </div>
+                <div className="appcard-date">Applied {app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-IN') : '—'}</div>
               </article>
             ))}
           </div>

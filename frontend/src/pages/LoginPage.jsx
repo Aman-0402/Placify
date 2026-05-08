@@ -30,30 +30,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-grid">
-        <div className="auth-brand-panel">
-          <img src="/images/Logo.png" alt="Placify" className="auth-logo" />
-          <h1 className="auth-brand-title">Placify</h1>
-          <p className="auth-brand-sub">Campus Placement OS — connecting students and recruiters on one platform.</p>
-        </div>
-        <div className="auth-form-panel">
-          <h2 className="auth-form-title">Welcome back</h2>
-          <p className="auth-form-sub">Sign in to your account to continue.</p>
+    <div className="auth-body">
+      <header className="auth-topbar">
+        <Link to="/" className="auth-topbar-brand">
+          <img src="/images/Logo.png" alt="Placify" />
+          <span>Placify</span>
+        </Link>
+        <Link to="/register" className="auth-topbar-link">Create account</Link>
+      </header>
+      <div className="auth-wrap">
+        <div className="auth-card">
+          <div className="auth-card-header">
+            <h1 className="auth-title">Welcome back</h1>
+            <p className="auth-subtitle">Sign in to your Placify account</p>
+          </div>
           <form className="form-stack" onSubmit={handleSubmit}>
             <label className="field">
-              <span>Email</span>
-              <input type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" required autoFocus />
+              <span>Email address</span>
+              <input type="email" value={form.email} onChange={set('email')} placeholder="you@college.edu" required autoFocus />
             </label>
             <label className="field">
               <span>Password</span>
-              <input type="password" value={form.password} onChange={set('password')} placeholder="••••••••" required />
+              <input type="password" value={form.password} onChange={set('password')} placeholder="Your password" required />
             </label>
-            <button className="button primary" type="submit" disabled={busy}>
+            <button className="button primary button--full" type="submit" disabled={busy}>
               {busy ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
-          <p className="auth-switch">Don't have an account? <Link to="/register">Register</Link></p>
+          <p className="auth-alt-link">Don't have an account? <Link to="/register">Create one free</Link></p>
         </div>
       </div>
     </div>

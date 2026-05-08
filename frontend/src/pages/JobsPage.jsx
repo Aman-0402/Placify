@@ -101,11 +101,15 @@ export default function JobsPage() {
         ) : (
           <div className="cards-grid">
             {filtered.map((job) => (
-              <article key={job.id} className="job-card">
+              <article key={job.id} className="card">
                 <div className="card-head-row">
-                  <div className="chip-row">
-                    <span className={`status-pill ${job.active ? 'success' : 'warning'}`}>{job.active ? 'Active' : 'Closed'}</span>
-                    <span className="micro-pill">{job.companyName}</span>
+                  <div className="card-head">
+                    <div className="chip-row">
+                      <span className={`status-pill ${job.active ? 'success' : 'warning'}`}>{job.active ? 'Active' : 'Inactive'}</span>
+                      <span className="micro-pill">{job.companyName}</span>
+                    </div>
+                    <h3>{job.title}</h3>
+                    <p className="card-summary">{job.description?.slice(0, 150)}</p>
                   </div>
                   {user?.role === 'STUDENT' && (
                     <button className={`bookmark-btn${savedIds.has(job.id) ? ' saved' : ''}`} onClick={() => toggleBookmark(job.id)} title={savedIds.has(job.id) ? 'Remove bookmark' : 'Save job'}>
@@ -113,17 +117,20 @@ export default function JobsPage() {
                     </button>
                   )}
                 </div>
-                <div className="job-card-title">{job.title}</div>
-                <div className="job-card-desc">{job.description?.slice(0, 120)}…</div>
-                <div className="job-card-meta">
-                  {job.location && <span>📍 {job.location}</span>}
-                  {job.salaryPackage && <span>💰 {job.salaryPackage}</span>}
-                  {job.applicationDeadline && <span>📅 {job.applicationDeadline}</span>}
+                <div className="detail-grid">
+                  <div className="detail-item"><span>Eligibility</span><strong>{job.eligibility}</strong></div>
+                  <div className="detail-item"><span>Deadline</span><strong>{job.applicationDeadline || '—'}</strong></div>
+                  <div className="detail-item"><span>Location</span><strong>{job.location || 'Remote'}</strong></div>
+                  <div className="detail-item"><span>Package</span><strong>{job.salaryPackage || 'Confidential'}</strong></div>
                 </div>
-                <div className="job-card-eligibility">{job.eligibility}</div>
-                {user?.role === 'STUDENT' && job.active && (
-                  <button className="button primary sm" style={{ marginTop: 12 }} onClick={() => applyToJob(job.id)}>Apply Now</button>
-                )}
+                <div className="panel-actions">
+                  {!job.active
+                    ? <button className="button ghost" type="button" disabled>Closed</button>
+                    : user?.role === 'STUDENT'
+                      ? <button className="button primary" onClick={() => applyToJob(job.id)}>Apply for Job</button>
+                      : null
+                  }
+                </div>
               </article>
             ))}
           </div>

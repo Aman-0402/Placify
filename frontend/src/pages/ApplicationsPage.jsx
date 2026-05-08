@@ -4,9 +4,31 @@ import { getMyApplications, getAllApplications, updateApplicationStatus } from '
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../hooks/useToast';
 
-const STEPS = ['APPLIED', 'IN_REVIEW', 'SHORTLISTED', 'INTERVIEW'];
+const STEPS = [
+  { key: 'APPLIED', label: 'Applied' },
+  { key: 'IN_REVIEW', label: 'Under Review' },
+  { key: 'SHORTLISTED', label: 'Shortlisted' },
+  { key: 'INTERVIEW', label: 'Interview' },
+];
+const STEP_INDEX = { APPLIED: 0, IN_REVIEW: 1, SHORTLISTED: 2, INTERVIEW: 3 };
 const STATUS_LABELS = { APPLIED: 'Applied', IN_REVIEW: 'Under Review', SHORTLISTED: 'Shortlisted', INTERVIEW: 'Interview', SELECTED: 'Selected', REJECTED: 'Rejected' };
 const ALL_STATUSES = ['APPLIED', 'IN_REVIEW', 'SHORTLISTED', 'INTERVIEW', 'SELECTED', 'REJECTED'];
+
+const CheckIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="2 6 5 9 10 3"/>
+  </svg>
+);
+const CrossIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+    <line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/>
+  </svg>
+);
+const StarIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+    <path d="M6 1l1.4 2.9L11 4.4l-2.5 2.4.6 3.4L6 8.8l-3.1 1.4.6-3.4L1 4.4l3.6-.5z"/>
+  </svg>
+);
 
 function statusTone(s) {
   if (s === 'SELECTED' || s === 'SHORTLISTED') return 'success';
@@ -14,33 +36,48 @@ function statusTone(s) {
   return 'warning';
 }
 
-function Timeline({ status }) {
-  const stepIdx = STEPS.indexOf(status);
+function Timeline({ status, updatedAt }) {
+  const activeIdx = STEP_INDEX[status] ?? -1;
   const isRejected = status === 'REJECTED';
   const isSelected = status === 'SELECTED';
 
-  return (
-    <div className="app-timeline">
-      {STEPS.map((step, i) => {
-        let state = 'pending';
-        if (isRejected) state = i === 0 ? 'done' : 'pending';
-        else if (isSelected) state = 'done';
-        else if (i < stepIdx) state = 'done';
-        else if (i === stepIdx) state = 'active';
-        return (
-          <div key={step} className={`tl-step ${state}`}>
-            {i > 0 && <div className="tl-connector" />}
-            <div className="tl-node" />
-            <div className="tl-label">{STATUS_LABELS[step]}</div>
-          </div>
-        );
-      })}
-      <div className={`tl-step ${isSelected ? 'outcome-success' : isRejected ? 'outcome-danger' : 'outcome-pending'}`}>
-        <div className="tl-connector" />
-        <div className="tl-node" />
-        <div className="tl-label">{isSelected ? '🎉 Offered' : isRejected ? 'Rejected' : 'Decision'}</div>
+  const nodes = [];
+  STEPS.forEach((step, i) => {
+    let cls;
+    if (isSelected) cls = 'done';
+    else if (isRejected) cls = i === 0 ? 'done' : 'pending';
+    else if (i < activeIdx) cls = 'done';
+    else if (i === activeIdx) cls = 'active';
+    else cls = 'pending';
+
+    nodes.push(
+      <div key={step.key} className={`tl-step ${cls}`}>
+        <div className="tl-node">{cls === 'done' ? <CheckIcon /> : i + 1}</div>
+        <span className="tl-label">{step.label}</span>
       </div>
-    </div>
+    );
+    if (i < STEPS.length - 1) {
+      nodes.push(<div key={`c${i}`} className={`tl-connector${cls === 'done' ? ' done' : ''}`} />);
+    }
+  });
+
+  const outcomeCls = isSelected ? 'outcome-success' : isRejected ? 'outcome-danger' : 'outcome-pending';
+  const outcomeLabel = isSelected ? 'Offered' : isRejected ? 'Rejected' : 'Decision';
+  const outcomeIcon = isSelected ? <StarIcon /> : isRejected ? <CrossIcon /> : '?';
+  const connectorCls = isSelected ? 'done' : '';
+
+  return (
+    <>
+      <div className="app-timeline">
+        {nodes}
+        <div className={`tl-connector${connectorCls ? ' ' + connectorCls : ''}`} />
+        <div className={`tl-step ${outcomeCls}`}>
+          <div className="tl-node">{outcomeIcon}</div>
+          <span className="tl-label">{outcomeLabel}</span>
+        </div>
+      </div>
+      {updatedAt && <p className="tl-updated">Last updated {new Date(updatedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>}
+    </>
   );
 }
 
@@ -115,18 +152,19 @@ export default function ApplicationsPage() {
         </section>
       ) : (
         /* Student timeline cards */
-        <div style={{ display: 'grid', gap: 16 }}>
+        <div className="cards-grid">
           {filtered.map((app) => (
-            <section key={app.id} className="panel">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+            <article key={app.id} className="appcard">
+              <div className="appcard-top">
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '1rem' }}>{app.jobTitle}</div>
-                  <div style={{ color: 'var(--muted-light)', fontSize: '0.85rem' }}>{app.companyName}</div>
+                  <div className="appcard-title">{app.jobTitle}</div>
+                  <div className="appcard-company">{app.companyName}</div>
                 </div>
                 <span className={`status-pill ${statusTone(app.status)}`}>{STATUS_LABELS[app.status]}</span>
               </div>
-              <Timeline status={app.status} />
-            </section>
+              <Timeline status={app.status} updatedAt={app.updatedAt} />
+              <div className="appcard-date">Applied {app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-IN') : '—'}</div>
+            </article>
           ))}
         </div>
       )}
