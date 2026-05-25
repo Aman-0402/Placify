@@ -71,10 +71,10 @@ Controller → Service → ServiceImpl → Repository → JPA Entity → MySQL
 
 ### Student
 - Profile: branch, CGPA, skills (comma-separated), PDF resume upload (max 2 MB)
-- Browse all active job listings with title search, company filter, and status filter
+- Advanced job search — keyword matches title, description, eligibility, location, company name, and salary package via DB-level LIKE queries; separate location filter; company dropdown; active/inactive toggle
 - Bookmark / un-bookmark jobs (optimistic UI)
 - One-click apply
-- Application tracking with an animated timeline (Applied → Under Review → Shortlisted → Interview → Offered / Rejected)
+- Application tracking with an animated timeline (Applied → Under Review → Shortlisted → Interview → Selected / Rejected)
 
 ### Recruiter / Admin
 - Create and manage job postings (title, company, location, salary package, deadline, eligibility, description)
@@ -84,9 +84,8 @@ Controller → Service → ServiceImpl → Repository → JPA Entity → MySQL
 - Admin-only: add companies to the directory
 
 ### Notifications
-- Bell icon in topbar polls unread count every 30 seconds
-- Click to load and mark all notifications as read
-- Dropdown lists message + timestamp
+- In-app: bell icon polls unread count every 30 seconds; click to load and mark all as read; dropdown shows message + timestamp
+- Email (optional): async fire-and-forget emails via SMTP — application confirmation on apply, status-change emails with colour-coded HTML template. Set `PLACIFY_MAIL_ENABLED=true` and supply SMTP credentials to activate. Disabled by default — app starts without mail config.
 
 ---
 
@@ -98,6 +97,7 @@ Placify/
 │   └── src/main/
 │       ├── java/com/placify/
 │       │   ├── config/
+│       │   │   ├── AsyncConfig.java         ← email thread-pool executor
 │       │   │   ├── CorsConfig.java
 │       │   │   ├── DataInitializer.java
 │       │   │   ├── PasswordConfig.java
@@ -127,9 +127,12 @@ Placify/
 │       │   │   └── Role.java
 │       │   ├── exception/
 │       │   ├── repository/
+│       │   │   └── JobSpec.java             ← JPA Specification builder for job search
 │       │   ├── security/            ← JWT filter, UserDetailsService
 │       │   ├── service/
+│       │   │   ├── EmailService.java
 │       │   │   └── impl/
+│       │   │       └── EmailServiceImpl.java
 │       │   └── PlacifyApplication.java
 │       └── resources/
 │           ├── application.properties
@@ -213,13 +216,15 @@ Placify/
 | POST | `/api/companies` | ADMIN |
 
 ### Jobs
-| Method | Endpoint | Access |
-|---|---|---|
-| GET | `/api/jobs` | Authenticated |
-| POST | `/api/jobs` | RECRUITER, ADMIN |
-| PUT | `/api/jobs/{id}` | RECRUITER, ADMIN |
-| DELETE | `/api/jobs/{id}` | RECRUITER, ADMIN |
-| PATCH | `/api/jobs/{id}/toggle` | RECRUITER, ADMIN |
+| Method | Endpoint | Access | Query Params |
+|---|---|---|---|
+| GET | `/api/jobs` | Authenticated | `keyword`, `location`, `companyId`, `active` |
+| POST | `/api/jobs` | RECRUITER, ADMIN | — |
+| PUT | `/api/jobs/{id}` | RECRUITER, ADMIN | — |
+| DELETE | `/api/jobs/{id}` | RECRUITER, ADMIN | — |
+| PATCH | `/api/jobs/{id}/toggle` | RECRUITER, ADMIN | — |
+
+`keyword` performs case-insensitive OR-LIKE across title, description, eligibility, location, company name, and salary package. `location` is an additional AND-LIKE filter on the location field.
 
 ### Applications
 | Method | Endpoint | Access |
@@ -324,6 +329,12 @@ All `/api` requests are proxied to the backend — no CORS setup needed.
 | `PLACIFY_JWT_EXPIRATION_MS` | `86400000` | Token TTL (24 h) |
 | `PLACIFY_SEED_ENABLED` | `true` | Load demo data on startup |
 | `PLACIFY_UPLOAD_DIR` | `./uploads` | PDF resume storage directory |
+| `PLACIFY_MAIL_ENABLED` | `false` | Enable SMTP email sending |
+| `PLACIFY_MAIL_HOST` | `smtp.gmail.com` | SMTP host |
+| `PLACIFY_MAIL_PORT` | `587` | SMTP port (STARTTLS) |
+| `PLACIFY_MAIL_USERNAME` | *(empty)* | SMTP username / Gmail address |
+| `PLACIFY_MAIL_PASSWORD` | *(empty)* | SMTP password / Gmail App Password |
+| `PLACIFY_MAIL_FROM` | `noreply@placify.com` | From address in sent emails |
 
 ---
 
