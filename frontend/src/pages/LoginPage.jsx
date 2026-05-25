@@ -57,6 +57,7 @@ export default function LoginPage() {
               {busy ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
+          <p className="auth-alt-link"><Link to="/forgot-password">Forgot password?</Link></p>
           <p className="auth-alt-link">Don't have an account? <Link to="/register">Create one free</Link></p>
         </div>
       </div>

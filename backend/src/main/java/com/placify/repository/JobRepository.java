@@ -12,4 +12,6 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
     List<Job> findAllByOrderByCreatedAtDesc();
 
     List<Job> findByCompanyIdOrderByCreatedAtDesc(Long companyId);
+
+    long countByActiveTrue();
 }

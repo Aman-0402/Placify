@@ -10,6 +10,8 @@ import JobsPage from './pages/JobsPage';
 import ApplicationsPage from './pages/ApplicationsPage';
 import StudentProfile from './pages/StudentProfile';
 import RecruiterProfile from './pages/RecruiterProfile';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function RootRedirect() {
   const { user, loading } = useAuth();
@@ -25,6 +27,8 @@ export default function App() {
       <Route path="/" element={<RootRedirect />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       <Route path="/student-dashboard" element={
         <ProtectedRoute roles={['STUDENT']}><StudentDashboard /></ProtectedRoute>

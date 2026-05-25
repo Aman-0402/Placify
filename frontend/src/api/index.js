@@ -72,3 +72,10 @@ export const updateMyRecruiterProfile = (body) => api.put('/recruiters/me', body
 export const getNotifications = () => api.get('/notifications');
 export const getUnreadCount = () => api.get('/notifications/unread-count');
 export const markAllRead = () => api.patch('/notifications/read-all');
+
+// ── Admin ─────────────────────────────────────────────
+export const getAdminStats = () => api.get('/admin/stats');
+
+// ── Password reset ────────────────────────────────────
+export const forgotPassword = (body) => api.post('/auth/forgot-password', body);
+export const resetPassword = (body) => api.post('/auth/reset-password', body);

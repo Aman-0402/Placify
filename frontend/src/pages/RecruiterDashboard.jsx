@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
-import { getCompanies, getJobs, getAllApplications, createCompany, createJob, updateJob, deleteJob, toggleJobActive, getApplicationsByJob, updateApplicationStatus } from '../api';
+import { getCompanies, getJobs, getAllApplications, createCompany, createJob, updateJob, deleteJob, toggleJobActive, getApplicationsByJob, updateApplicationStatus, getAdminStats } from '../api';
 import { useToast } from '../hooks/useToast';
 
 const STATUS_LABELS = { APPLIED: 'Applied', IN_REVIEW: 'Under Review', SHORTLISTED: 'Shortlisted', INTERVIEW: 'Interview', SELECTED: 'Selected', REJECTED: 'Rejected' };
@@ -15,6 +15,7 @@ export default function RecruiterDashboard() {
   const { user } = useAuth();
   const { toast, confirm } = useToast();
   const [state, setState] = useState({ companies: [], jobs: [], applications: [] });
+  const [adminStats, setAdminStats] = useState(null);
   const [jobForm, setJobForm] = useState(emptyJobForm());
   const [companyForm, setCompanyForm] = useState({ name: '', description: '' });
   const [pipeline, setPipeline] = useState(null);
@@ -27,6 +28,12 @@ export default function RecruiterDashboard() {
       setState({ companies: cr.data.data || [], jobs: jr.data.data || [], applications: ar.data.data || [] });
     } catch (err) { toast('error', err.message); }
   }, []);
+
+  useEffect(() => {
+    if (user?.role === 'ADMIN') {
+      getAdminStats().then((r) => setAdminStats(r.data.data)).catch(() => {});
+    }
+  }, [user]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -124,6 +131,38 @@ export default function RecruiterDashboard() {
           { label: 'Shortlisted', value: shortlisted, color: 'success' },
         ].map((s) => <div key={s.label} className="scard"><div className={`scard-icon ${s.color}`} /><div className="scard-value">{s.value}</div><div className="scard-label">{s.label}</div></div>)}
       </div>
+
+      {/* Admin analytics */}
+      {user?.role === 'ADMIN' && adminStats && (
+        <section className="panel">
+          <div className="panel-header"><div><span className="eyebrow">Analytics</span><h2>Platform overview</h2></div></div>
+          <div className="scards-row" style={{ marginBottom: 20 }}>
+            {[
+              { label: 'Students', value: adminStats.totalStudents, color: 'cyan' },
+              { label: 'Total Jobs', value: adminStats.totalJobs, color: 'indigo' },
+              { label: 'Active Jobs', value: adminStats.activeJobs, color: 'indigo' },
+              { label: 'Applications', value: adminStats.totalApplications, color: 'warning' },
+              { label: 'Placements', value: adminStats.totalPlacements, color: 'success' },
+              { label: 'Placement Rate', value: `${adminStats.placementRate}%`, color: 'success' },
+            ].map((s) => <div key={s.label} className="scard"><div className={`scard-icon ${s.color}`} /><div className="scard-value">{s.value}</div><div className="scard-label">{s.label}</div></div>)}
+          </div>
+          {adminStats.topCompanies?.length > 0 && (
+            <>
+              <p style={{ color: 'var(--muted-light)', fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Top companies by placements</p>
+              <div className="pipeline-wrap">
+                <table className="pipeline-table">
+                  <thead><tr><th>Company</th><th>Placements</th></tr></thead>
+                  <tbody>
+                    {adminStats.topCompanies.map((c, i) => (
+                      <tr key={i}><td>{c.companyName}</td><td>{c.placements}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </section>
+      )}
 
       <section className="content-grid">
         {/* Companies */}

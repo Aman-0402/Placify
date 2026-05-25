@@ -49,7 +49,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/*.html", "/css/**", "/js/**", "/images/**",
                                 "/resumes/**", "/error", "/favicon.ico", "/favicon.svg").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register",
+                                "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/companies/**", "/api/jobs/**").permitAll()
                         .requestMatchers("/api/auth/me").authenticated()
                         .anyRequest().authenticated())

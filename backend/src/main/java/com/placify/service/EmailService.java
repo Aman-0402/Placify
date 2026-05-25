@@ -15,4 +15,6 @@ public interface EmailService {
                          String jobTitle, String companyName,
                          String location, String salaryPackage,
                          String deadline);
+
+    void sendPasswordReset(String toEmail, String name, String resetLink);
 }

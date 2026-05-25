@@ -68,6 +68,26 @@ public class EmailServiceImpl implements EmailService {
         send(toEmail, subject, html);
     }
 
+    // ── Password reset ───────────────────────────────────────────────
+
+    @Override
+    @Async("emailExecutor")
+    public void sendPasswordReset(String toEmail, String name, String resetLink) {
+        if (!emailEnabled) return;
+        String subject = "Reset your Placify password";
+        String html = buildHtml(name,
+                "Password Reset",
+                "You requested a password reset.",
+                "<p>Click the button below to set a new password. This link expires in <strong>1 hour</strong>.</p>"
+                        + "<div style='margin:24px 0;text-align:center'>"
+                        + "<a href='" + resetLink + "' style='display:inline-block;padding:12px 28px;"
+                        + "background:#6366f1;color:#fff;border-radius:8px;text-decoration:none;"
+                        + "font-weight:700;font-size:0.9rem;letter-spacing:0.02em'>Reset Password</a></div>"
+                        + "<p style='font-size:0.78rem;color:#64748b'>If you did not request this, ignore this email. Your password will not change.</p>",
+                "#6366f1");
+        send(toEmail, subject, html);
+    }
+
     // ── New job alert ────────────────────────────────────────────────
 
     @Override

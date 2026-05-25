@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.placify.dto.auth.AuthResponse;
+import com.placify.dto.auth.ForgotPasswordRequest;
 import com.placify.dto.auth.LoginRequest;
 import com.placify.dto.auth.RegisterRequest;
+import com.placify.dto.auth.ResetPasswordRequest;
 import com.placify.dto.common.ApiResponse;
 import com.placify.dto.user.UserResponse;
 import com.placify.service.AuthService;
@@ -47,6 +49,28 @@ public class AuthController {
                         .success(true)
                         .message("Login successful")
                         .data(authService.login(request))
+                        .build()
+        );
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("If that email is registered, a reset link has been sent.")
+                        .build()
+        );
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Password reset successfully")
                         .build()
         );
     }
