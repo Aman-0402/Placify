@@ -21,6 +21,7 @@ public class JobResponse {
     private String location;
     private String salaryPackage;
     private LocalDate applicationDeadline;
+    private Double minCgpa;
     private boolean active;
     private Long companyId;
     private String companyName;

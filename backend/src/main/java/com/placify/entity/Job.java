@@ -48,6 +48,9 @@ public class Job extends BaseEntity {
     @Column(nullable = false)
     private LocalDate applicationDeadline;
 
+    @Column
+    private Double minCgpa;
+
     @Column(nullable = false)
     private boolean active;
 

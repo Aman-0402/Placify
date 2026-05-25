@@ -9,7 +9,7 @@ const ALL_STATUSES = ['APPLIED', 'IN_REVIEW', 'SHORTLISTED', 'INTERVIEW', 'SELEC
 
 function today30() { const d = new Date(); d.setDate(d.getDate() + 30); return d.toISOString().split('T')[0]; }
 
-const emptyJobForm = () => ({ id: '', title: '', companyId: '', location: '', salaryPackage: '', applicationDeadline: today30(), eligibility: '', description: '' });
+const emptyJobForm = () => ({ id: '', title: '', companyId: '', location: '', salaryPackage: '', applicationDeadline: today30(), eligibility: '', description: '', minCgpa: '' });
 
 export default function RecruiterDashboard() {
   const { user } = useAuth();
@@ -37,7 +37,7 @@ export default function RecruiterDashboard() {
     if (!jobForm.companyId) { toast('error', 'Select a company first.'); return; }
     setBusyJob(true);
     try {
-      const body = { title: jobForm.title, description: jobForm.description, companyId: Number(jobForm.companyId), eligibility: jobForm.eligibility, location: jobForm.location || null, salaryPackage: jobForm.salaryPackage || null, applicationDeadline: jobForm.applicationDeadline || null };
+      const body = { title: jobForm.title, description: jobForm.description, companyId: Number(jobForm.companyId), eligibility: jobForm.eligibility, location: jobForm.location || null, salaryPackage: jobForm.salaryPackage || null, applicationDeadline: jobForm.applicationDeadline || null, minCgpa: jobForm.minCgpa !== '' ? Number(jobForm.minCgpa) : null };
       if (jobForm.id) await updateJob(jobForm.id, body); else await createJob(body);
       toast('success', jobForm.id ? 'Job updated.' : 'Job posted.');
       setJobForm(emptyJobForm());
@@ -107,7 +107,7 @@ export default function RecruiterDashboard() {
   };
 
   const editJob = (job) => {
-    setJobForm({ id: job.id, title: job.title, companyId: String(job.companyId), location: job.location || '', salaryPackage: job.salaryPackage || '', applicationDeadline: job.applicationDeadline || '', eligibility: job.eligibility, description: job.description });
+    setJobForm({ id: job.id, title: job.title, companyId: String(job.companyId), location: job.location || '', salaryPackage: job.salaryPackage || '', applicationDeadline: job.applicationDeadline || '', eligibility: job.eligibility, description: job.description, minCgpa: job.minCgpa ?? '' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -164,6 +164,7 @@ export default function RecruiterDashboard() {
               <label className="field"><span>Location</span><input type="text" value={jobForm.location} onChange={setJF('location')} placeholder="Bengaluru / Remote" /></label>
               <label className="field"><span>Package</span><input type="text" value={jobForm.salaryPackage} onChange={setJF('salaryPackage')} placeholder="8–12 LPA" /></label>
               <label className="field"><span>Deadline</span><input type="date" value={jobForm.applicationDeadline} onChange={setJF('applicationDeadline')} /></label>
+              <label className="field"><span>Min CGPA</span><input type="number" value={jobForm.minCgpa} onChange={setJF('minCgpa')} placeholder="e.g. 7.0" min="0" max="10" step="0.1" /></label>
             </div>
             <label className="field"><span>Eligibility</span><input type="text" value={jobForm.eligibility} onChange={setJF('eligibility')} placeholder="B.Tech CSE, 7.0 CGPA+" required /></label>
             <label className="field"><span>Description</span><textarea value={jobForm.description} onChange={setJF('description')} placeholder="Role summary…" required /></label>

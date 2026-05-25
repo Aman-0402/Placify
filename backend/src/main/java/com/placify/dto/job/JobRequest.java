@@ -2,6 +2,8 @@ package com.placify.dto.job;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -36,4 +38,8 @@ public class JobRequest {
     private String salaryPackage;
 
     private LocalDate applicationDeadline;
+
+    @DecimalMin(value = "0.0", message = "Minimum CGPA cannot be negative")
+    @DecimalMax(value = "10.0", message = "Minimum CGPA cannot exceed 10")
+    private Double minCgpa;
 }

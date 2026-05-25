@@ -124,6 +124,7 @@ public class JobServiceImpl implements JobService {
         job.setApplicationDeadline(request.getApplicationDeadline() != null
                 ? request.getApplicationDeadline()
                 : (job.getApplicationDeadline() != null ? job.getApplicationDeadline() : LocalDate.now().plusDays(30)));
+        job.setMinCgpa(request.getMinCgpa());
         job.setActive(true);
         job.setCompany(company);
         job.setRecruiter(job.getRecruiter() != null ? job.getRecruiter() : currentUser);
@@ -153,6 +154,7 @@ public class JobServiceImpl implements JobService {
                 .location(job.getLocation())
                 .salaryPackage(job.getSalaryPackage())
                 .applicationDeadline(job.getApplicationDeadline())
+                .minCgpa(job.getMinCgpa())
                 .active(job.isActive())
                 .companyId(job.getCompany().getId())
                 .companyName(job.getCompany().getName())

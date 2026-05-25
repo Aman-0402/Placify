@@ -130,6 +130,7 @@ export default function JobsPage() {
                 </div>
                 <div className="detail-grid">
                   <div className="detail-item"><span>Eligibility</span><strong>{job.eligibility}</strong></div>
+                  <div className="detail-item"><span>Min CGPA</span><strong>{job.minCgpa != null ? job.minCgpa : '—'}</strong></div>
                   <div className="detail-item"><span>Deadline</span><strong>{job.applicationDeadline || '—'}</strong></div>
                   <div className="detail-item"><span>Location</span><strong>{job.location || 'Remote'}</strong></div>
                   <div className="detail-item"><span>Package</span><strong>{job.salaryPackage || 'Confidential'}</strong></div>

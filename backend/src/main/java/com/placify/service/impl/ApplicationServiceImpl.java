@@ -46,6 +46,15 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new BadRequestException("Student has already applied for this job");
         }
 
+        if (job.getMinCgpa() != null) {
+            Double cgpa = student.getCgpa();
+            if (cgpa == null || cgpa < job.getMinCgpa()) {
+                throw new BadRequestException(
+                        "Minimum CGPA of " + job.getMinCgpa() + " required. Your CGPA: "
+                        + (cgpa != null ? cgpa : "not set"));
+            }
+        }
+
         Application application = new Application();
         application.setStudent(student);
         application.setJob(job);
