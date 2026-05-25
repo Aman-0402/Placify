@@ -51,7 +51,15 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setJob(job);
         application.setStatus(ApplicationStatus.APPLIED);
 
-        return mapApplication(applicationRepository.save(application));
+        ApplicationResponse response = mapApplication(applicationRepository.save(application));
+
+        emailService.sendApplicationConfirmation(
+                student.getUser().getEmail(),
+                student.getUser().getName(),
+                job.getTitle(),
+                job.getCompany().getName());
+
+        return response;
     }
 
     @Override
