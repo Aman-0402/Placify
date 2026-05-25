@@ -111,6 +111,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         notificationService.notifyUser(application.getStudent().getUser().getId(),
                 NotificationType.STATUS_CHANGED, message, applicationId);
 
+        emailService.sendStatusUpdate(
+                application.getStudent().getUser().getEmail(),
+                application.getStudent().getUser().getName(),
+                application.getJob().getTitle(),
+                application.getJob().getCompany().getName(),
+                request.getStatus());
+
         return saved;
     }
 
