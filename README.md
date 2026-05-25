@@ -68,24 +68,27 @@ Controller → Service → ServiceImpl → Repository → JPA Entity → MySQL
 - Register as Student or Recruiter
 - JWT login — token stored in `localStorage`, injected into every request via Axios interceptor
 - Auto-redirect to `/login` on 401; role-based redirect after login
+- Forgot password — email reset link (1-hour expiry, single-use token); set `PLACIFY_MAIL_ENABLED=true` to activate
 
 ### Student
 - Profile: branch, CGPA, skills (comma-separated), PDF resume upload (max 2 MB)
 - Advanced job search — keyword matches title, description, eligibility, location, company name, and salary package via DB-level LIKE queries; separate location filter; company dropdown; active/inactive toggle
+- Minimum CGPA eligibility check on apply — job can set a `minCgpa` threshold; application rejected with clear error if student CGPA is below it
 - Bookmark / un-bookmark jobs (optimistic UI)
 - One-click apply
 - Application tracking with an animated timeline (Applied → Under Review → Shortlisted → Interview → Selected / Rejected)
 
 ### Recruiter / Admin
-- Create and manage job postings (title, company, location, salary package, deadline, eligibility, description)
+- Create and manage job postings (title, company, location, salary package, deadline, minimum CGPA, eligibility, description)
 - Activate / deactivate jobs
 - View per-job applicant pipeline in a table with inline status updates
 - Export applicant list to CSV
 - Admin-only: add companies to the directory
+- Admin-only: platform analytics dashboard — total students, jobs, applications, placements, placement rate (%), top 5 companies by placements
 
 ### Notifications
 - In-app: bell icon polls unread count every 30 seconds; click to load and mark all as read; dropdown shows message + timestamp
-- Email (optional): async fire-and-forget emails via SMTP — application confirmation on apply, status-change emails with colour-coded HTML template. Set `PLACIFY_MAIL_ENABLED=true` and supply SMTP credentials to activate. Disabled by default — app starts without mail config.
+- Email (optional): async fire-and-forget via SMTP — application confirmation, status-change emails with colour-coded HTML template, password reset link. Set `PLACIFY_MAIL_ENABLED=true` and supply SMTP credentials to activate. Disabled by default — app starts without mail config.
 
 ---
 
@@ -103,6 +106,7 @@ Placify/
 │       │   │   ├── PasswordConfig.java
 │       │   │   └── SecurityConfig.java
 │       │   ├── controller/
+│       │   │   ├── AdminController.java      ← GET /api/admin/stats
 │       │   │   ├── ApplicationController.java
 │       │   │   ├── AuthController.java
 │       │   │   ├── CompanyController.java
@@ -111,12 +115,15 @@ Placify/
 │       │   │   ├── RecruiterProfileController.java
 │       │   │   ├── StudentController.java
 │       │   │   └── UserController.java
-│       │   ├── dto/                 ← request/response contracts
+│       │   ├── dto/
+│       │   │   ├── admin/AdminStatsResponse.java
+│       │   │   └── ... (auth, job, application, etc.)
 │       │   ├── entity/
 │       │   │   ├── Application.java
 │       │   │   ├── Company.java
 │       │   │   ├── Job.java
 │       │   │   ├── Notification.java
+│       │   │   ├── PasswordResetToken.java   ← forgot-password flow
 │       │   │   ├── RecruiterProfile.java
 │       │   │   ├── SavedJob.java
 │       │   │   ├── Student.java
@@ -130,8 +137,10 @@ Placify/
 │       │   │   └── JobSpec.java             ← JPA Specification builder for job search
 │       │   ├── security/            ← JWT filter, UserDetailsService
 │       │   ├── service/
+│       │   │   ├── AdminStatsService.java
 │       │   │   ├── EmailService.java
 │       │   │   └── impl/
+│       │   │       ├── AdminStatsServiceImpl.java
 │       │   │       └── EmailServiceImpl.java
 │       │   └── PlacifyApplication.java
 │       └── resources/
@@ -151,6 +160,8 @@ Placify/
 │   │   ├── pages/
 │   │   │   ├── LoginPage.jsx
 │   │   │   ├── RegisterPage.jsx
+│   │   │   ├── ForgotPasswordPage.jsx
+│   │   │   ├── ResetPasswordPage.jsx
 │   │   │   ├── StudentDashboard.jsx
 │   │   │   ├── RecruiterDashboard.jsx
 │   │   │   ├── JobsPage.jsx
@@ -180,10 +191,11 @@ Placify/
 | `Student` | branch, cgpa, skills, resume | One-to-one with `User` |
 | `RecruiterProfile` | company, position, experienceYears, linkedIn, bio | One-to-one with `User` |
 | `Company` | name, description | One-to-many with `Job` |
-| `Job` | title, description, eligibility, location, salaryPackage, applicationDeadline, active | Many-to-one with `Company` |
+| `Job` | title, description, eligibility, minCgpa, location, salaryPackage, applicationDeadline, active | Many-to-one with `Company` |
 | `Application` | student, job, status | Status: `APPLIED → IN_REVIEW → SHORTLISTED → INTERVIEW → SELECTED / REJECTED` |
 | `SavedJob` | student, job | Bookmark relationship |
-| `Notification` | user, message, type, read | Generated on status changes |
+| `Notification` | user, message, type, read | Generated on status changes and new job posts |
+| `PasswordResetToken` | token (UUID), user, expiresAt, used | Single-use, 1-hour TTL |
 
 ---
 
@@ -195,6 +207,10 @@ Placify/
 | POST | `/api/auth/register` | Public |
 | POST | `/api/auth/login` | Public |
 | GET | `/api/auth/me` | Authenticated |
+| POST | `/api/auth/forgot-password` | Public |
+| POST | `/api/auth/reset-password` | Public |
+
+`forgot-password` always returns 200 — never reveals whether email exists. `reset-password` validates token expiry and single-use constraint.
 
 ### Student
 | Method | Endpoint | Access |
@@ -241,6 +257,13 @@ Placify/
 | GET | `/api/saved-jobs/ids` | STUDENT |
 | POST | `/api/saved-jobs/{jobId}` | STUDENT |
 | DELETE | `/api/saved-jobs/{jobId}` | STUDENT |
+
+### Admin
+| Method | Endpoint | Access |
+|---|---|---|
+| GET | `/api/admin/stats` | ADMIN |
+
+Returns: `totalStudents`, `totalJobs`, `activeJobs`, `totalApplications`, `totalPlacements`, `placementRate` (%), `topCompanies` (top 5 by placements).
 
 ### Notifications
 | Method | Endpoint | Access |
@@ -335,6 +358,7 @@ All `/api` requests are proxied to the backend — no CORS setup needed.
 | `PLACIFY_MAIL_USERNAME` | *(empty)* | SMTP username / Gmail address |
 | `PLACIFY_MAIL_PASSWORD` | *(empty)* | SMTP password / Gmail App Password |
 | `PLACIFY_MAIL_FROM` | `noreply@placify.com` | From address in sent emails |
+| `PLACIFY_FRONTEND_URL` | `http://localhost:5173` | Base URL prepended to password reset links in emails |
 
 ---
 
