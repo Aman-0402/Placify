@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Layout from '../components/Layout';
 import { getJobs, getCompanies, getSavedJobIds, saveJob, unsaveJob, createApplication } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -16,31 +16,41 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [savedIds, setSavedIds] = useState(new Set());
-  const [filters, setFilters] = useState({ title: '', companyId: '', active: '' });
+  const [filters, setFilters] = useState({ keyword: '', location: '', companyId: '', active: '' });
   const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(true);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     Promise.all([
-      getJobs(),
       getCompanies(),
       user?.role === 'STUDENT' ? getSavedJobIds() : Promise.resolve(null),
-    ]).then(([jr, cr, sr]) => {
-      setJobs(jr.data.data || []);
+    ]).then(([cr, sr]) => {
       setCompanies(cr.data.data || []);
       if (sr) setSavedIds(new Set(sr.data.data || []));
-    }).catch((err) => toast('error', err.message))
-      .finally(() => setLoading(false));
+    }).catch((err) => toast('error', err.message));
   }, [user]);
 
-  const filtered = jobs.filter((j) => {
-    if (activeTab === 'saved' && !savedIds.has(j.id)) return false;
-    if (filters.title && !j.title.toLowerCase().includes(filters.title.toLowerCase())) return false;
-    if (filters.companyId && j.companyId !== Number(filters.companyId)) return false;
-    if (filters.active === 'true' && !j.active) return false;
-    if (filters.active === 'false' && j.active) return false;
-    return true;
-  });
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setLoading(true);
+      const params = {};
+      if (filters.keyword) params.keyword = filters.keyword;
+      if (filters.location) params.location = filters.location;
+      if (filters.companyId) params.companyId = filters.companyId;
+      if (filters.active !== '') params.active = filters.active;
+
+      getJobs(params)
+        .then((r) => setJobs(r.data.data || []))
+        .catch((err) => toast('error', err.message))
+        .finally(() => setLoading(false));
+    }, 400);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [filters]);
+
+  const displayed = activeTab === 'saved' ? jobs.filter((j) => savedIds.has(j.id)) : jobs;
 
   const toggleBookmark = async (jobId) => {
     const isSaved = savedIds.has(jobId);
@@ -68,7 +78,8 @@ export default function JobsPage() {
         {/* Filters */}
         <section className="panel">
           <div className="form-grid" style={{ marginBottom: 0 }}>
-            <label className="field"><span>Search title</span><input type="text" value={filters.title} onChange={(e) => setFilters((f) => ({ ...f, title: e.target.value }))} placeholder="e.g. Software Engineer" /></label>
+            <label className="field"><span>Keyword search</span><input type="text" value={filters.keyword} onChange={(e) => setFilters((f) => ({ ...f, keyword: e.target.value }))} placeholder="Title, company, skills, location…" /></label>
+            <label className="field"><span>Location</span><input type="text" value={filters.location} onChange={(e) => setFilters((f) => ({ ...f, location: e.target.value }))} placeholder="e.g. Bangalore" /></label>
             <label className="field">
               <span>Company</span>
               <select value={filters.companyId} onChange={(e) => setFilters((f) => ({ ...f, companyId: e.target.value }))}>
@@ -96,11 +107,11 @@ export default function JobsPage() {
         )}
 
         {/* Cards */}
-        {loading ? <p style={{ padding: 16, color: 'var(--muted-light)' }}>Loading jobs…</p> : filtered.length === 0 ? (
+        {loading ? <p style={{ padding: 16, color: 'var(--muted-light)' }}>Loading jobs…</p> : displayed.length === 0 ? (
           <div className="empty-state">No jobs found.</div>
         ) : (
           <div className="cards-grid">
-            {filtered.map((job) => (
+            {displayed.map((job) => (
               <article key={job.id} className="card">
                 <div className="card-head-row">
                   <div className="card-head">

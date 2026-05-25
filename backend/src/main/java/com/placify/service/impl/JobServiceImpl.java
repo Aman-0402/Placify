@@ -3,6 +3,8 @@ package com.placify.service.impl;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,7 @@ import com.placify.entity.User;
 import com.placify.exception.ResourceNotFoundException;
 import com.placify.repository.CompanyRepository;
 import com.placify.repository.JobRepository;
+import com.placify.repository.JobSpec;
 import com.placify.repository.UserRepository;
 import com.placify.enums.NotificationType;
 import com.placify.service.JobService;
@@ -56,14 +59,9 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public List<JobResponse> getFilteredJobs(String title, Long companyId, String eligibility, Boolean active) {
-        return jobRepository.findAllByOrderByCreatedAtDesc().stream()
-                .filter(job -> title == null || title.isBlank()
-                        || job.getTitle().toLowerCase().contains(title.trim().toLowerCase()))
-                .filter(job -> companyId == null || job.getCompany().getId().equals(companyId))
-                .filter(job -> eligibility == null || eligibility.isBlank()
-                        || job.getEligibility().toLowerCase().contains(eligibility.trim().toLowerCase()))
-                .filter(job -> active == null || job.isActive() == active)
+    public List<JobResponse> getFilteredJobs(String keyword, String location, Long companyId, Boolean active) {
+        Specification<Job> spec = JobSpec.filter(keyword, location, companyId, active);
+        return jobRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(this::mapJob)
                 .toList();
     }
@@ -81,8 +79,8 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public List<JobResponse> getAvailableJobs(String title, Long companyId, String eligibility) {
-        return getFilteredJobs(title, companyId, eligibility, true);
+    public List<JobResponse> getAvailableJobs(String keyword, String location, Long companyId) {
+        return getFilteredJobs(keyword, location, companyId, true);
     }
 
     @Override

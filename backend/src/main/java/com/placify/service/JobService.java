@@ -11,13 +11,13 @@ public interface JobService {
 
     List<JobResponse> getAllJobs();
 
-    List<JobResponse> getFilteredJobs(String title, Long companyId, String eligibility, Boolean active);
+    List<JobResponse> getFilteredJobs(String keyword, String location, Long companyId, Boolean active);
 
     JobResponse getJobById(Long jobId);
 
     List<JobResponse> getJobsByCompany(Long companyId);
 
-    List<JobResponse> getAvailableJobs(String title, Long companyId, String eligibility);
+    List<JobResponse> getAvailableJobs(String keyword, String location, Long companyId);
 
     JobResponse updateJob(Long jobId, String email, JobRequest request);
 

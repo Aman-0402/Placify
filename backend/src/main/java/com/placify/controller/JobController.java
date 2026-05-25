@@ -50,15 +50,15 @@ public class JobController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<JobResponse>>> getAllJobs(
-            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String location,
             @RequestParam(required = false) Long companyId,
-            @RequestParam(required = false) String eligibility,
             @RequestParam(required = false) Boolean active) {
         return ResponseEntity.ok(
                 ApiResponse.<List<JobResponse>>builder()
                         .success(true)
                         .message("Jobs fetched successfully")
-                        .data(jobService.getFilteredJobs(title, companyId, eligibility, active))
+                        .data(jobService.getFilteredJobs(keyword, location, companyId, active))
                         .build()
         );
     }
