@@ -53,12 +53,11 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
 
         if (savedUser.getRole() == Role.STUDENT) {
-            validateStudentRegistration(request);
             Student student = new Student();
             student.setUser(savedUser);
-            student.setSkills(request.getSkills().trim());
-            student.setResume(request.getResume().trim());
-            student.setBranch(request.getBranch().trim());
+            student.setSkills(request.getSkills() != null ? request.getSkills().trim() : null);
+            student.setResume(request.getResume() != null ? request.getResume().trim() : null);
+            student.setBranch(request.getBranch() != null ? request.getBranch().trim() : null);
             Student savedStudent = studentRepository.save(student);
             savedUser.setStudent(savedStudent);
         }
@@ -83,16 +82,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return mapUser(user);
-    }
-
-    private void validateStudentRegistration(RegisterRequest request) {
-        if (isBlank(request.getSkills()) || isBlank(request.getResume()) || isBlank(request.getBranch())) {
-            throw new BadRequestException("Skills, resume, and branch are required for student registration");
-        }
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.isBlank();
     }
 
     private AuthResponse buildAuthResponse(User user) {

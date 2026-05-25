@@ -30,13 +30,13 @@ public class Student extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(nullable = false, length = 1000)
+    @Column(length = 1000)
     private String skills;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String resume;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String branch;
 
     @Column
