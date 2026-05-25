@@ -19,6 +19,7 @@ import com.placify.repository.ApplicationRepository;
 import com.placify.repository.JobRepository;
 import com.placify.repository.StudentRepository;
 import com.placify.service.ApplicationService;
+import com.placify.service.EmailService;
 import com.placify.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final StudentRepository studentRepository;
     private final JobRepository jobRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Override
     @Transactional
